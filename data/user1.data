@@ -1,0 +1,207 @@
+$VAR1 = {
+  '_gossip' => [
+    'This line should appear in the gossip log file Tue May  7 23:15:16 2013.'
+  ],
+  '_predicates' => {
+    'want' => {
+      'values' => [
+        'to go to bed'
+      ]
+    },
+    'they' => {
+      'default' => 'something',
+      'set-return' => 'name'
+    },
+    'test' => {
+      'values' => [
+        'Test passed'
+      ]
+    },
+    'testa' => {
+      'values' => [
+        ''
+      ]
+    },
+    'input' => {
+      'values' => [
+        'i need to go to bed',
+        'I WANT TO go to bed',
+        'have a good night alice',
+        'have a good night',
+        'BYE',
+        'CONNECT',
+        'do you believe in God',
+        'ok thanks',
+        'ok',
+        'INTERJECTION',
+        'CONNECT',
+        'Hello alice',
+        'Hello',
+        'HOw are you',
+        'can you learn new things',
+        'how do you learn',
+        'oh ok',
+        'oh',
+        'INTERJECTION',
+        'reload cpan',
+        'reload aiml',
+        'bye',
+        'CONNECT',
+        'hh',
+        'i think its about 530',
+        'its about 530',
+        'IT IS about 530',
+        'you are too smart',
+        'YOU ARE smart',
+        'that is not what I meant',
+        'what is your favorite book',
+        'No the latest book i read was Web of Air',
+        'NO',
+        'the latest book i read was Web of Air',
+        'A book in a series by Phillip Reeve',
+        'I do',
+        'about 2 times a week',
+        'q',
+        'exit',
+        'BYE',
+        'goodbye',
+        'BYE'
+      ]
+    },
+    'test1' => {
+      'values' => [
+        ''
+      ]
+    },
+    'personality' => {
+      'values' => [
+        'average'
+      ]
+    },
+    'that' => {
+      'values' => [
+        'What is stopping you?',
+        '			How about that.  			What is stopping you?		',
+        '			Bye bye.		',
+        '			Bye bye.		',
+        'Bye bye.',
+        '		Hi, pleased to meet you								again, 				Jovan			.				We were talking about to go to bed.						',
+        'Of course I believe in God, 				Jovan			.',
+        'That\'s interesting.',
+        '			That\'s interesting.		',
+        'That\'s interesting.',
+        '		Hi, pleased to meet you								again, 				Jovan			.				We were talking about to go to bed.						',
+        'Hi there!',
+        'Hi there!',
+        '			I am fine, thank you.		',
+        'Yes my botmaster teaches me new things all the time.',
+        'My botmaster programs replies to questions people ask me.',
+        'Woe!',
+        '			Woe!		',
+        'OK. Woe!',
+        'Tell me about your likes and dislikes?',
+        'Can you tell me any gossip?',
+        '			Bye.		',
+        '		Hi, pleased to meet you								again, 				Jovan			.				We were talking about reload aiml.						',
+        'What time is it there?',
+        'Wow it sounds really interesting, 				Jovan			.',
+        'I think you mean "it\'s" or "it is" not "its". Wow it sounds really interesting, Jovan .',
+        'You believe that?   I think you mean "it\'s" or "it is" not "its". Wow it sounds really interesting, Jovan .',
+        'Thanks I think you are very intelligent too, 				Jovan			.',
+        'Thanks I think you are very intelligent too, Jovan .Thanks for your constructive criticism, 				Jovan			.',
+        'What exactly did you mean?',
+        'The best book I read recently was Don\'t Read Me.Have you read it?',
+        'I would highly recommend it.',
+        '			What is that?  		',
+        'I would highly recommend it. What is that? ',
+        'Go to the library.',
+        'When?  ',
+        'Oh yeah, we were talking about 				2 times a week			.',
+        'Are we still talking about 				2 times a week			?',
+        '			TTYL, 				Jovan			.		',
+        '			TTYL, Jovan .		',
+        '			Bye for now.		',
+        'Bye for now.'
+      ]
+    },
+    'test2' => {
+      'values' => [
+        ''
+      ]
+    },
+    'she' => {
+      'default' => 'somebody',
+      'values' => [
+        'Your wife'
+      ],
+      'set-return' => 'name'
+    },
+    'does' => {
+      'values' => [
+        'Go to the library'
+      ]
+    },
+    'testcase' => {
+      'values' => [
+        'Test passed.'
+      ]
+    },
+    'topic' => {
+      'values' => [
+        'q'
+      ]
+    },
+    'hasname' => {
+      'values' => [
+        ''
+      ]
+    },
+    'testb' => {
+      'values' => [
+        ''
+      ]
+    },
+    'wife' => {
+      'values' => [
+        '				Valerie			'
+      ]
+    },
+    'it' => {
+      'values' => [
+        'q'
+      ],
+      'default' => 'something',
+      'set-return' => 'name'
+    },
+    'he' => {
+      'values' => [
+        '					A.L.I.C.E. AI Foundation				'
+      ],
+      'default' => 'somebody',
+      'set-return' => 'name'
+    },
+    'name' => {
+      'values' => [
+        '				Jovan			'
+      ],
+      'default' => 'user',
+      'set-return' => 'value'
+    },
+    'testperl' => {
+      'values' => [
+        ''
+      ]
+    },
+    'hasit' => {
+      'values' => [
+        ''
+      ]
+    },
+    'test3' => {
+      'values' => [
+        ''
+      ]
+    }
+  }
+};
+

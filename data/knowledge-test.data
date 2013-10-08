@@ -1,0 +1,2371 @@
+$VAR1 = {
+  'TestBot-1' => {
+    'perl' => '
+# Global module part from /arpa/gm/j/jovan/Documents/devel/Perl_code/programv/conf/../aiml/standard/dev-examples.aiml
+package AIML::Perl::TestBot_1;
+
+#
+#	Global vars aren\'t working with mod_perl !!!
+#
+sub inc
+{
+	my $i = shift() || 0;
+
+	return ++$i;
+}
+
+sub dec
+{
+	my $i = shift() || 0;
+
+	return --$i;
+}
+
+
+# Global module part from /arpa/gm/j/jovan/Documents/devel/Perl_code/programv/conf/../aiml/standard/dev-perl.aiml
+package AIML::Perl::TestBot_1;
+
+
+#
+#	define your gobal functions here
+#
+#	always protect this code with CDATA, especially if you use &, < or > !
+#
+use strict;
+use warnings;
+
+my %ops	= ( plus => \'+\', minus => \'-\', times => \'*\', divide => \'/\', equals => \'==\' );
+
+sub isNumber
+{
+	my $x = shift;
+
+	return 0		unless defined $x;
+	return 0		unless $x =~ /^([+-]?)(?=\\d|\\.\\d)\\d*(\\.\\d*)?([Ee]([+-]?\\d+))?$/;
+	return 1;
+}
+
+sub toNumber
+{
+	my $x = shift;
+
+	return $x	unless defined $x;
+	return $x	if isNumber ( $x );			#	ok
+
+	if ( $x =~ /^(\\d+) point (\\d+)$/ )		#	spoken math...
+	{
+		return $1 . \'.\' . $2;		#	float
+	}
+	else
+	{
+		return $x;						#	can\'t handle it...
+	}
+}
+
+sub isOperator
+{
+	my $x = shift;
+
+	return 0		unless defined $x;
+
+	$x = lc ( $x );
+
+	return $ops{$x} ? 1 : 0;
+}
+
+sub toOperator
+{
+	my $x = shift;
+
+	return \'undef\'		unless defined $x;
+
+	$x = lc ( $x );
+
+	return $ops{$x} ? $ops{$x} : $x;
+}
+
+sub calc
+{
+#	my $func	= (caller(1))[3];
+#	print "$func ( @_ )\\n";
+
+	my $a		= shift() || 0;
+	my $op	= shift() || \'undef\';
+	my $b		= shift() || 0;
+
+	return "Don\'t know how to do \'$a $op $b\'."	unless isOperator ( $op );
+
+	$a = toNumber ( $a );
+	$b = toNumber ( $b );
+
+	return \'NaN\'	unless isNumber ( $a );
+	return \'NaN\'	unless isNumber ( $b );
+
+	$op = lc ( $op );
+
+	SWITCH:
+	{
+		for ( $op )
+		{
+			/^plus$/		&& do {
+									return $a + $b;
+								};
+			/^minus$/	&& do {
+									return $a - $b;
+								};
+			/^times$/	&& do {
+									return $a * $b;
+								};
+			/^divide$/	&& do {
+									return \'Infinity\'	if $b == 0;
+									return $a / $b;
+								};
+			/^equals$/	&& do {
+									return $a == $b ? \'true\' : \'false\';
+								};
+			die;
+		}
+	}
+}
+
+
+sub calcAdd
+{
+	my $a = shift;
+	my $b = shift;
+
+	return calc ( $a, \'PLUS\', $b );
+}
+
+sub calcSubtract
+{
+	my $a = shift;
+	my $b = shift;
+
+	return calc ( $a, \'MINUS\', $b );
+}
+
+sub calcTimes
+{
+	my $a = shift;
+	my $b = shift;
+
+	return calc ( $a, \'TIMES\', $b );
+}
+
+sub calcDivide
+{
+	my $a = shift;
+	my $b = shift;
+
+	return calc ( $a, \'DIVIDE\', $b );
+}
+
+sub isEqual
+{
+	my $a = shift;
+	my $b = shift;
+
+	return calc ( $a, \'EQUALS\', $b );
+}
+
+1;
+
+
+# Global module part from /arpa/gm/j/jovan/Documents/devel/Perl_code/programv/conf/../aiml/standard/dev-perl.aiml
+package AIML::Perl::TestBot_1;
+
+sub hasValueSet
+{
+	my $name		= shift() || \'\';
+	my $value	= shift() || \'\';
+	my $bot_id	= shift() || \'\';
+
+	return 0		unless $name;
+	return 0		unless $value;
+#	return 0		if $value eq AIML::Config::getConfig ( \'emptydefault\' );
+
+	my $predicates	= AIML::Knowledge::getPredicates ( $bot_id );
+
+	if ( exists $predicates->{$name} )
+	{
+		my $default		= $predicates->{$name}->{default};
+
+		return 0		if $default and ( $value eq $default );
+	}
+
+	return 1;
+}
+',
+    'predicates' => {
+      'she' => {
+        'default' => 'somebody',
+        'set-return' => 'name'
+      },
+      'they' => {
+        'default' => 'something',
+        'set-return' => 'name'
+      },
+      'it' => {
+        'default' => 'something',
+        'set-return' => 'name'
+      },
+      'he' => {
+        'default' => 'somebody',
+        'set-return' => 'name'
+      },
+      'name' => {
+        'default' => 'user',
+        'set-return' => 'value'
+      }
+    },
+    'sentence-splitters' => {
+      '?' => 1,
+      '.' => 1,
+      ';' => 1,
+      '!' => 1
+    },
+    'substitutes' => {
+      'input' => {
+        ' favourite ' => ' favorite ',
+        ' j.' => ' j ',
+        '.3' => ' point 3',
+        ':2' => ' 2',
+        ' iamasking ' => ' I am asking ',
+        ',do ' => '.  do ',
+        ' z.' => ' z ',
+        ' they\'re ' => ' they are ',
+        '==' => ' equals ',
+        ' won t ' => ' will not ',
+        ' v.' => ' v ',
+        ' are\'nt ' => ' are not ',
+        ' reductionalism ' => ' reductionism ',
+        '.4' => ' point 4',
+        ' wouldnt ' => ' would not ',
+        ' ain t ' => ' is not ',
+        '-' => ' minus ',
+        ' o. k. ' => ' ok ',
+        ' yuo ' => ' you ',
+        ' o.' => ' o ',
+        ' b.' => ' b ',
+        ' you\'ve ' => ' you have ',
+        ' dr.w' => ' Dr w',
+        ' a.' => ' a ',
+        '{' => ' beginscript ',
+        ' cant ' => ' can not ',
+        ' colour ' => ' color ',
+        ' realy ' => ' really ',
+        ' u.s.a. ' => ' USA ',
+        ' we\'ll ' => ' we will ',
+        ' hadn\'t ' => ' had not ',
+        ')' => ' ',
+        ' a.l.i.c.e. ' => ' ALICE ',
+        ' wont ' => ' will not ',
+        '.0' => ' point 0',
+        ': 4' => ' 4',
+        '=' => ' equals ',
+        ' i\'ll ' => ' I will ',
+        ' they re ' => ' they are ',
+        ' a.l.i.c.e ' => ' ALICE ',
+        ' you\'d ' => ' you would ',
+        ' wouldn t ' => ' would not ',
+        ' x.' => ' x ',
+        ' we\'re ' => ' we are ',
+        ' what\'s ' => ' what is ',
+        ' www.' => ' www dot ',
+        ' shed ' => ' she would ',
+        ' waht ' => ' what ',
+        ' amnot ' => ' am not ',
+        ' you\'ll ' => ' you will ',
+        ' wasn t ' => ' was not ',
+        ';-)' => ' smile ',
+        '*' => ' times ',
+        ' won\'t ' => ' will not ',
+        ' haha' => ' ha',
+        '.7' => ' point 7',
+        ' iamsorry ' => ' I am sorry ',
+        ' hehe' => ' he',
+        ' he\'d ' => ' he would ',
+        ' amleaving ' => ' am leaving ',
+        '.com ' => ' dot com ',
+        ' theres ' => ' there is ',
+        ' becuse ' => ' because ',
+        ' we\'ve ' => ' we have ',
+        ' m.' => ' m ',
+        ' i.c.e ' => ' i c e ',
+        ' iamtalking ' => ' I am talking ',
+        ' couldn\'t ' => ' could not ',
+        ' dr. ' => ' Dr ',
+        ' she s ' => ' she is ',
+        ' fav ' => ' favorite ',
+        '.zip' => ' zip',
+        ',' => ' ',
+        ':1' => ' 1',
+        '"' => '',
+        ' iamin ' => ' I am in ',
+        ' beleive ' => ' believe ',
+        ' st. ' => ' St ',
+        ' wasn\'t ' => ' was not ',
+        ' d.' => ' d ',
+        ' dr . ' => ' Dr ',
+        ' down load ' => ' download ',
+        ' where\'s ' => ' where is ',
+        ' can\'t ' => ' can not ',
+        ' there\'s ' => ' there is ',
+        '.1' => ' point 1',
+        ': 3' => ' 3',
+        ' how d ' => ' how did ',
+        ' who s ' => ' who is ',
+        '.jp ' => ' dot jp ',
+        ' y.' => ' y ',
+        ', you ' => '.  you ',
+        '.2' => ' point 2',
+        ' he s ' => ' he is ',
+        '=reply' => '',
+        ' how s ' => ' how is ',
+        '%' => ' per cent ',
+        ' u.' => ' u ',
+        ' hasn\'t ' => ' has not ',
+        ' becasue ' => ' because ',
+        ' becouse ' => ' because ',
+        ' e.' => ' e ',
+        ' hadn t ' => ' had not ',
+        '.uk ' => ' dot uk ',
+        ' l.' => ' l ',
+        ' what s ' => ' what is ',
+        '.ac ' => ' dot ac ',
+        ' yha ' => ' yes ',
+        ' hellp ' => ' help ',
+        ' werent ' => ' were not ',
+        ' amon ' => ' am on ',
+        '<' => ' lt ',
+        ' aman ' => ' am an ',
+        ' there s ' => ' there is ',
+        ' don t ' => ' do not ',
+        ' arn t ' => ' are not ',
+        ' ph.d. ' => ' PhD ',
+        ' who\'s ' => ' who is ',
+        '.8' => ' point 8',
+        ':-)' => ' smile ',
+        ' p s ' => ' ps ',
+        '&' => ' ',
+        ' how\'d ' => ' how did ',
+        '`' => ' ',
+        ' aren\'t ' => ' are not ',
+        ' g.' => ' g ',
+        ' couldn t ' => ' could not ',
+        ' didnt ' => ' did not ',
+        ' ive ' => ' I have ',
+        ' practice ' => ' practise ',
+        ' we ll ' => ' we will ',
+        ' wellit ' => ' well it ',
+        ' i m ' => ' I am ',
+        ';)' => ' smile ',
+        ',you ' => '.  you ',
+        ' s.' => ' s ',
+        ' whos ' => ' who is ',
+        ' iamtired ' => ' I am tired ',
+        ':0' => ' 0',
+        '/' => ' divided by ',
+        ' do nt ' => ' do not ',
+        ' a l i c e ' => ' ALICE ',
+        ' arent ' => ' are not ',
+        ' u s a ' => ' USA ',
+        ' do\'nt ' => ' do not ',
+        ' isnt ' => ' is not ',
+        '.net ' => ' dot net ',
+        ': 2' => ' 2',
+        ' don\'t ' => ' do not ',
+        ' let\'s ' => ' let us ',
+        ' i ve ' => ' I have ',
+        ' amused.com' => ' amused dot com ',
+        ' she\'d ' => ' she would ',
+        ' youre ' => ' you are ',
+        '.6' => ' point 6',
+        ' he\'s ' => ' he is ',
+        '.edu ' => ' dot edu ',
+        ' she d ' => ' she would ',
+        ' o.k. ' => ' ok ',
+        ':5' => ' 5',
+        ' yesi ' => ' yes I ',
+        ' ur ' => ' your ',
+        ', i ' => '.  I ',
+        ' isn t ' => ' is not ',
+        '\\' => ' ',
+        ' he ll ' => ' he will ',
+        ' that\'s ' => ' that is ',
+        ',and ' => '.  ',
+        ' e.l.v.i.s ' => ' ELVIS ',
+        ' u.s. ' => ' USA ',
+        ' dont ' => ' do not ',
+        ' i\'d ' => ' I would ',
+        ',i ' => '.  I ',
+        '.au ' => ' dot au ',
+        ' can t ' => ' can not ',
+        '}' => ' endscript ',
+        ' u. s. a. ' => ' USA ',
+        ' wanna ' => ' want to ',
+        ' you ve ' => ' you have ',
+        '.co ' => ' dot co ',
+        ' p.' => ' p ',
+        ' you r ' => ' you are ',
+        ' iamdoing ' => ' I am doing ',
+        ' e l v i s ' => ' ELVIS ',
+        ', what ' => '.  what ',
+        ',but ' => '.  ',
+        '(' => ' ',
+        ' she\'s ' => ' she is ',
+        ', do ' => '.  do ',
+        ' aren t ' => ' are not ',
+        ' where s ' => ' where is ',
+        ':' => ' ',
+        '.9' => ' point 9',
+        ' doesnt ' => ' does not ',
+        ' shouldnt ' => ' should not ',
+        ': 5' => ' 5',
+        ' didn t ' => ' did not ',
+        ', and ' => '.  ',
+        ' cannot ' => ' can not ',
+        ' loebner price ' => ' loebner prize ',
+        ' iamfrom ' => ' I am from ',
+        '.5' => ' point 5',
+        ' we re ' => ' we are ',
+        ' e.l.v.i.s. ' => ' ELVIS ',
+        'ß' => 'ss',
+        ' ohh' => ' oh',
+        ' noi ' => ' yes I ',
+        ' haven\'t ' => ' have not ',
+        ' weren\'t ' => ' were not ',
+        'name=reset' => '',
+        ' thats ' => ' that is ',
+        ':)' => ' smile ',
+        ' hed ' => ' he would ',
+        ' amfine ' => ' am fine ',
+        ' l a ' => ' la ',
+        ' botspot.' => ' botspot dot ',
+        ' shouldn\'t ' => ' should not ',
+        ' welli ' => ' well I ',
+        ': 0' => ' 0',
+        ' o k ' => ' ok ',
+        ' isn\'t ' => ' is not ',
+        ' k.' => ' k ',
+        ' wallance ' => ' wallace ',
+        ' did\'nt ' => ' did not ',
+        ' he\'ll ' => ' he will ',
+        ' c.' => ' c ',
+        ' shes ' => ' she is ',
+        ' weren t ' => ' were not ',
+        ' wasnt ' => ' was not ',
+        ' yep ' => ' yes ',
+        ' i\'m ' => ' I am ',
+        ' l.l. ' => ' l l ',
+        ' hasn t ' => ' has not ',
+        ' havent ' => ' have not ',
+        ' v.i.s ' => ' v i s ',
+        ',)' => ' smile ',
+        ' whats ' => ' what is ',
+        ' iam ' => ' I am ',
+        ' you re ' => ' you are ',
+        ' h.' => ' h ',
+        ' mr. ' => ' Mr ',
+        ' h a l ' => ' hal ',
+        ' wouldn\'t ' => ' would not ',
+        ' u ' => ' you ',
+        '+' => ' plus ',
+        ' w.' => ' w ',
+        ' mrs. ' => ' Mrs ',
+        ' didn\'t ' => ' did not ',
+        '  and ' => '.  ',
+        ' doesn t ' => ' does not ',
+        ' iamusing ' => ' I am using ',
+        ' alicebot ' => ' ALICE ',
+        '  but ' => '.  ',
+        ' how\'s ' => ' how is ',
+        ' becuase ' => ' because ',
+        ' name\'s ' => ' name is ',
+        ' i.' => ' i ',
+        ' we ve ' => ' we have ',
+        ' whatis.' => ' whatis dot ',
+        ' t.' => ' t ',
+        ' r.' => ' r ',
+        ' i\'ve ' => ' I have ',
+        '.jar' => ' jar',
+        ' it s ' => ' it is ',
+        ' ain\'t ' => ' is not ',
+        '>' => ' gt ',
+        ' he d ' => ' he would ',
+        ' iamok ' => ' I am ok ',
+        ' you ll ' => ' you will ',
+        ', but ' => '.  ',
+        ' f.' => ' f ',
+        ' q.' => ' q ',
+        ' its a ' => ' it is a ',
+        ',what ' => '.  what ',
+        ' iama ' => ' I am a ',
+        ' yesit ' => ' yes it ',
+        ' doesn\'t ' => ' does not ',
+        ': 1' => ' 1',
+        ' it\'s ' => ' it is ',
+        ' yeah ' => ' yes ',
+        '.org ' => ' dot org ',
+        ' remeber ' => ' remember ',
+        ' p.s. ' => ' ps ',
+        ' n.' => ' n ',
+        ' h.a.l. ' => ' hal ',
+        ':4' => ' 4',
+        ' hows ' => ' how is ',
+        ':3' => ' 3',
+        ' you\'re ' => ' you are '
+      },
+      'person' => {
+        ' me ' => ' him or her ',
+        ' I ' => ' he or she ',
+        ' she was ' => ' I was ',
+        ' I am ' => ' he or she is ',
+        ' he was ' => ' I was ',
+        ' mine ' => ' his or hers ',
+        ' my ' => ' his or her ',
+        ' myself ' => ' him or herself ',
+        ' I was ' => ' he or she was '
+      },
+      'person2' => {
+        ' I ' => ' you ',
+        ' of me ' => ' of you ',
+        ' dein ' => ' mein ',
+        ' for me ' => ' for you ',
+        ' dir ' => ' mir ',
+        ' fuer dich ' => ' fuer mich ',
+        ' myself ' => ' yourself ',
+        ' my ' => ' your ',
+        ' you are ' => ' I am ',
+        ' yours ' => ' mine ',
+        ' for you ' => ' for me ',
+        ' give me ' => ' give you ',
+        ' du ' => ' ich ',
+        ' mein ' => ' sein ',
+        ' am I ' => ' are you ',
+        ' are you ' => ' am I ',
+        ' gave you ' => ' gave me ',
+        ' ich war ' => ' er war ',
+        ' told me ' => ' told you ',
+        ' save you ' => ' save me ',
+        ' giving me ' => ' giving you ',
+        ' I am ' => ' you are ',
+        ' deins ' => ' meins ',
+        ' bist du ' => ' bin ich ',
+        ' tell me ' => ' tell you ',
+        ' take me ' => ' take you ',
+        ' made me ' => ' made you ',
+        ' take you ' => ' take me ',
+        ' me ' => ' you ',
+        ' tell you ' => ' tell me ',
+        ' mit dir ' => ' mit mir ',
+        ' of you ' => ' of me ',
+        ' yourself ' => ' myself ',
+        ' gave me ' => ' gave you ',
+        ' made you ' => ' made me ',
+        ' meins ' => ' seins ',
+        ' you were ' => ' I was ',
+        ' telling you ' => ' telling me ',
+        ' your ' => ' my ',
+        ' you ' => ' me ',
+        ' telling me ' => ' telling you ',
+        ' giving you ' => ' giving me ',
+        ' give you ' => ' give me ',
+        ' told you ' => ' told me ',
+        ' save me ' => ' save you ',
+        ' ich ' => ' er ',
+        ' make you ' => ' make me ',
+        ' to me ' => ' to you ',
+        ' to you ' => ' to me ',
+        ' ich bin ' => ' er ist ',
+        ' mine ' => ' yours ',
+        ' with me ' => ' with you ',
+        ' make me ' => ' make you ',
+        ' with you ' => ' with me ',
+        ' I was ' => ' you were '
+      },
+      'gender' => {
+        ' for her ' => ' for him ',
+        ' his ' => ' her ',
+        ' with her ' => ' with him ',
+        ' to her ' => ' to him ',
+        ' in him ' => ' in her ',
+        ' ihn ' => ' Sie ',
+        ' ihm ' => ' ihr ',
+        ' on her ' => ' on him ',
+        ' he ' => ' she ',
+        ' for him ' => ' for her ',
+        ' with him ' => ' with her ',
+        ' er ' => ' Sie ',
+        ' on him ' => ' on her ',
+        ' to him ' => ' to her ',
+        ' her ' => ' his ',
+        ' she ' => ' he ',
+        ' in her ' => ' in him ',
+        ' sein ' => ' ihr ',
+        ' him ' => ' her '
+      }
+    },
+    'aiml' => {
+      'matches' => {
+        'TEST6B' => [
+          '<that> * <topic> TEST PASSED TOPIC <pos> 74'
+        ],
+        'TESTSETX' => [
+          '<that> * <topic> * <pos> 70'
+        ],
+        'TESTTHATSTAR' => [
+          '<that> * <topic> * <pos> 121'
+        ],
+        'TESTTHINKSRAI' => [
+          '<that> * <topic> * <pos> 110'
+        ],
+        'SRAI19' => [
+          '<that> * <topic> * <pos> 133'
+        ],
+        'TESTCASEINFINITELOOP2' => [
+          '<that> * <topic> * <pos> 59'
+        ],
+        'SRAI9' => [
+          '<that> * <topic> * <pos> 143'
+        ],
+        'SRAISUCCEEDED' => [
+          '<that> * <topic> * <pos> 106'
+        ],
+        'SRAI12' => [
+          '<that> * <topic> * <pos> 140'
+        ],
+        'SRAI11' => [
+          '<that> * <topic> * <pos> 141'
+        ],
+        'TESTSR' => [
+          '* <that> * <topic> * <pos> 107'
+        ],
+        'EBAY' => [
+          '<that> WHICH SEARCH ENGINE WOULD YOU LIKE TO USE * <topic> * <pos> 173'
+        ],
+        'SRAI17' => [
+          '<that> * <topic> * <pos> 135'
+        ],
+        'TESTMULTITHATSTAR' => [
+          '<that> * <topic> * <pos> 123'
+        ],
+        'TESTTOPICSTAR' => [
+          '<that> * <topic> * <pos> 125'
+        ],
+        'TESTPERLBAD2' => [
+          '<that> * <topic> * <pos> 49'
+        ],
+        'SEARCH' => [
+          'FOR * <that> * <topic> * <pos> 170',
+          'YAHOO FOR * <that> * <topic> * <pos> 174',
+          'YAHOO AUCTIONS FOR * <that> * <topic> * <pos> 175',
+          'EBAY FOR * <that> * <topic> * <pos> 176',
+          'THE WEB FOR * <that> * <topic> * <pos> 178'
+        ],
+        'TESTINPUT3' => [
+          '<that> * <topic> * <pos> 116'
+        ],
+        'TEST36' => [
+          '<that> * <topic> OLDTOPIC <pos> 130'
+        ],
+        'TESTPERLFREE' => [
+          '* * * * * * * <that> * <topic> * <pos> 50',
+          '* * * * * <that> * <topic> * <pos> 51',
+          '* * * <that> * <topic> * <pos> 52'
+        ],
+        'SRAI6' => [
+          '<that> * <topic> * <pos> 146'
+        ],
+        'TESTNESTEDWORDFORMAT' => [
+          '<that> * <topic> * <pos> 90'
+        ],
+        'TESTPERL2' => [
+          '<that> * <topic> * <pos> 40'
+        ],
+        'TESTNESTEDCONDITION2' => [
+          '<that> * <topic> * <pos> 102'
+        ],
+        'TESTVERSION' => [
+          '<that> * <topic> * <pos> 104'
+        ],
+        'TESTCONDITIONLISTMATCH' => [
+          '<that> * <topic> * <pos> 81'
+        ],
+        'SRAINESTED' => [
+          '<that> * <topic> * <pos> 109'
+        ],
+        'TESTALTER' => [
+          '<that> * <topic> * <pos> 71'
+        ],
+        'TESTNAME' => [
+          '<that> * <topic> * <pos> 115'
+        ],
+        'TESTPERSON2' => [
+          '* <that> * <topic> * <pos> 153'
+        ],
+        'TESTTHATARRAY' => [
+          '<that> * <topic> * <pos> 97'
+        ],
+        'YAHOO' => [
+          '<that> WHICH SEARCH ENGINE WOULD YOU LIKE TO USE * <topic> * <pos> 171',
+          'AUCTIONS <that> WHICH SEARCH ENGINE WOULD YOU LIKE TO USE * <topic> * <pos> 172'
+        ],
+        'TESTPERSON' => [
+          '* <that> * <topic> * <pos> 152'
+        ],
+        'SRAI16' => [
+          '<that> * <topic> * <pos> 136'
+        ],
+        'SRAI14' => [
+          '<that> * <topic> * <pos> 138'
+        ],
+        'TESTSETTOPIC' => [
+          '<that> * <topic> * <pos> 72'
+        ],
+        'TESTCASEINFINITELOOP' => [
+          '<that> * <topic> * <pos> 58'
+        ],
+        'GET' => [
+          'A QUOTE FOR ORACLE <that> * <topic> * <pos> 26',
+          'A QUOTE FOR MICROSOFT <that> * <topic> * <pos> 27',
+          'A QUOTE FOR NUANCE <that> * <topic> * <pos> 28',
+          'A QUOTE FOR * <that> * <topic> * <pos> 29',
+          'A CHART FOR * <that> * <topic> * <pos> 30'
+        ],
+        'TESTWORDFORMAT' => [
+          '<that> * <topic> * <pos> 89'
+        ],
+        'WHAT' => [
+          'IS THE DATE <that> * <topic> * <pos> 1',
+          'IS TODAY <that> * <topic> * <pos> 2',
+          'TIME IS IT <that> * <topic> * <pos> 3',
+          'IS THE INACTIVITY COUNT <that> * <topic> * <pos> 9',
+          'IS MY FAVORITE FOOD <that> * <topic> * <pos> 14',
+          'IS THE NAME OF THE NEW PERSON <that> * <topic> * <pos> 19',
+          'IS THE ADDRESS OF THE NEW PERSON <that> * <topic> * <pos> 20',
+          'IS AN EGG <that> * <topic> * <pos> 31',
+          'DOES * MEAN <that> * <topic> * <pos> 63',
+          'IS THE DEFINITION OF * <that> * <topic> * <pos> 64',
+          'IS SPANISH FOR * <that> * <topic> * <pos> 159',
+          'IS GERMAN FOR * <that> * <topic> * <pos> 160',
+          'IS FRENCH FOR * <that> * <topic> * <pos> 161',
+          'IS ITALIAN FOR * <that> * <topic> * <pos> 162',
+          'IS JAPANESE FOR * <that> * <topic> * <pos> 163'
+        ],
+        'TESTNESTEDCONDITION1' => [
+          '<that> * <topic> * <pos> 101'
+        ],
+        'SHOW' => [
+          'ME SLASHDOT <that> * <topic> * <pos> 33',
+          'ME A WINDOW <that> * <topic> * <pos> 37'
+        ],
+        'TESTARRAY2MULTISENTENCETHAT' => [
+          '<that> * <topic> * <pos> 95'
+        ],
+        'LEARN' => [
+          'IT <that> * <topic> * <pos> 32',
+          'SOMETHING <that> * <topic> * <pos> 36'
+        ],
+        'SRAI7' => [
+          '<that> * <topic> * <pos> 145'
+        ],
+        'TESTINPUT' => [
+          '<that> * <topic> * <pos> 117'
+        ],
+        'TESTHIDE' => [
+          '<that> * <topic> * <pos> 68'
+        ],
+        'SELECT' => [
+          '* <that> * <topic> * <pos> 65'
+        ],
+        'TESTDISPLAYSET' => [
+          '<that> * <topic> * <pos> 67'
+        ],
+        'RESPONSE' => [
+          'TIMEOUT <that> * <topic> * <pos> 55'
+        ],
+        'INFINITE' => [
+          'LOOP <that> * <topic> * <pos> 56'
+        ],
+        '*' => [
+          '<that> WHAT IS THE NAME OF THE PERSON <topic> * <pos> 17',
+          '<that> WHAT IS THE ADDRESS OF THE PERSON <topic> * <pos> 18',
+          'IS ONE OF MY KIDS <that> * <topic> * <pos> 22',
+          '* * * * * * * * * * * * * * * * * * * * * * * <that> * <topic> * <pos> 53',
+          '<that> * <topic> * <pos> 54'
+        ],
+        'TESTATOMIC' => [
+          '<that> * <topic> * <pos> 66'
+        ],
+        'SRAI4' => [
+          '<that> * <topic> * <pos> 148'
+        ],
+        'TESTPERLTHINK' => [
+          '* PLUS * <that> * <topic> * <pos> 47'
+        ],
+        'TESTEXTREMESRAI' => [
+          '<that> * <topic> * <pos> 131'
+        ],
+        'YES' => [
+          '<that> FOOBAR <topic> * <pos> 38'
+        ],
+        'TEST35' => [
+          '<that> * <topic> MULTITOPICSTAR * TOPIC * TOPIC1 * <pos> 128'
+        ],
+        'TELL' => [
+          'BOT AGE <that> * <topic> * <pos> 62'
+        ],
+        'TESTSIMPLECONDITIONMATCH' => [
+          '<that> * <topic> * <pos> 79'
+        ],
+        'BOT' => [
+          'HOW MUCH IS * <that> * <topic> * <pos> 4'
+        ],
+        'TESTMULTITHATSTAR1' => [
+          '<that> SEE WHETHER * AND WHETHER * AND WHETHER * NEXT <topic> * <pos> 124'
+        ],
+        'TEST' => [
+          'GET <that> * <topic> * <pos> 6',
+          'SET <that> * <topic> * <pos> 7',
+          'JAVASCRIPT <that> * <topic> * <pos> 8',
+          'INACTIVITY <that> * <topic> * <pos> 12',
+          'GET SEARCH <that> * <topic> * <pos> 169'
+        ],
+        'SAY' => [
+          '* TO ME IN SPANISH <that> * <topic> * <pos> 154',
+          '* TO ME IN GERMAN <that> * <topic> * <pos> 155',
+          '* TO ME IN FRENCH <that> * <topic> * <pos> 156',
+          '* TO ME IN ITALIAN <that> * <topic> * <pos> 157',
+          '* TO ME IN JAPANESE <that> * <topic> * <pos> 158',
+          '* IN SPANISH <that> * <topic> * <pos> 164',
+          '* IN GERMAN <that> * <topic> * <pos> 165',
+          '* IN FRENCH <that> * <topic> * <pos> 166',
+          '* IN ITALIAN <that> * <topic> * <pos> 167',
+          '* IN JAPANESE <that> * <topic> * <pos> 168'
+        ],
+        'DO' => [
+          'IF EXIST TEST <that> * <topic> * <pos> 21'
+        ],
+        'TESTSRAI' => [
+          '<that> * <topic> * <pos> 105'
+        ],
+        'TESTCONDITIONLISTDEFAULT' => [
+          '<that> * <topic> * <pos> 82'
+        ],
+        'DECREASE' => [
+          'INACTIVITY COUNT <that> * <topic> * <pos> 11'
+        ],
+        'SRAI10' => [
+          '<that> * <topic> * <pos> 142'
+        ],
+        'WHO' => [
+          'ARE MY KIDS <that> * <topic> * <pos> 23'
+        ],
+        'INCREASE' => [
+          'INACTIVITY COUNT <that> * <topic> * <pos> 10'
+        ],
+        'TESTINPUT2' => [
+          '<that> * <topic> * <pos> 119'
+        ],
+        'TESTSIMPLEMULTISENTENCETHAT' => [
+          '<that> * <topic> * <pos> 91'
+        ],
+        'TESTRANDOM' => [
+          '<that> * <topic> * <pos> 88'
+        ],
+        'SRAI1' => [
+          '<that> * <topic> * <pos> 151'
+        ],
+        'TESTNESTEDSRAI' => [
+          '<that> * <topic> * <pos> 108'
+        ],
+        'TESTTHATSTAR1' => [
+          '<that> CHECK NEXT TO SEE IF * <topic> * <pos> 122'
+        ],
+        'TESTCONDITIONLIST' => [
+          '<that> * <topic> * <pos> 80'
+        ],
+        'SRAI18' => [
+          '<that> * <topic> * <pos> 134'
+        ],
+        'TESTPERL' => [
+          '<that> * <topic> * <pos> 39',
+          '* PLUS * <that> * <topic> * <pos> 41',
+          '* MINUS * <that> * <topic> * <pos> 42',
+          '* TIMES * <that> * <topic> * <pos> 43',
+          '* DIVIDE * <that> * <topic> * <pos> 45',
+          '* EQUALS * <that> * <topic> * <pos> 46'
+        ],
+        'TESTARRAY1MULTISENTENCETHAT' => [
+          '<that> * <topic> * <pos> 96'
+        ],
+        'TESTBOTPROPERTIES' => [
+          '<that> * <topic> * <pos> 98'
+        ],
+        'TESTOLDTOPIC' => [
+          '<that> * <topic> * <pos> 129'
+        ],
+        'TESTGOSSIP' => [
+          '<that> * <topic> * <pos> 114'
+        ],
+        'TESTPERLBAD1' => [
+          '<that> * <topic> * <pos> 48'
+        ],
+        'BLINDSETNOMATCH' => [
+          '<that> * <topic> * <pos> 78'
+        ],
+        'TESTSTAR' => [
+          '* <that> * <topic> * <pos> 85',
+          '* AND * AND * AND * <that> * <topic> * <pos> 86'
+        ],
+        'TESTNESTEDCONDITION' => [
+          '<that> * <topic> * <pos> 100'
+        ],
+        'ADD' => [
+          'A NEW PERSON <that> * <topic> * <pos> 16'
+        ],
+        'KILL' => [
+          'TIMER <that> * <topic> * <pos> 35'
+        ],
+        '_' => [
+          'DIVIDED BY _ <that> * <topic> * <pos> 44'
+        ],
+        'SRAI5' => [
+          '<that> * <topic> * <pos> 147'
+        ],
+        'TSRAI' => [
+          '<that> * <topic> * <pos> 111'
+        ],
+        'TESTSTARSET' => [
+          '* <that> * <topic> * <pos> 112'
+        ],
+        'YOU' => [
+          'ARE PRETTY COOL <that> * <topic> * <pos> 24'
+        ],
+        'EVALUATE' => [
+          '* <that> * <topic> * <pos> 5'
+        ],
+        'TESTCASEMULTIPLEADJACENTSRAIS' => [
+          '<that> * <topic> * <pos> 61'
+        ],
+        'TESTCASEINFINITELOOP3' => [
+          '<that> * <topic> * <pos> 60'
+        ],
+        'TESTSETCONDITION' => [
+          '<that> * <topic> * <pos> 103'
+        ],
+        'PRINT' => [
+          'THIS PAGE <that> * <topic> * <pos> 15'
+        ],
+        'TESTARRAY4MULTISENTENCETHAT' => [
+          '<that> * <topic> * <pos> 93'
+        ],
+        'MY' => [
+          'FAVORITE FOOD IS * <that> * <topic> * <pos> 13'
+        ],
+        'TESTSIMPLECONDITIONA' => [
+          '<that> * <topic> * <pos> 76'
+        ],
+        'TESTGENDER' => [
+          '* <that> * <topic> * <pos> 120'
+        ],
+        'SRAI13' => [
+          '<that> * <topic> * <pos> 139'
+        ],
+        'TEST6A' => [
+          '<that> TEST PASSED TOPIC 2 <topic> TEST PASSED TOPIC <pos> 73'
+        ],
+        'START' => [
+          'TIMER <that> * <topic> * <pos> 34'
+        ],
+        'TESTMULTITOPICSTAR' => [
+          '<that> * <topic> * <pos> 127'
+        ],
+        'SRAI15' => [
+          '<that> * <topic> * <pos> 137'
+        ],
+        'TESTCONDITIONSETVALUE' => [
+          '<that> * <topic> * <pos> 99'
+        ],
+        'SRAI8' => [
+          '<that> * <topic> * <pos> 144'
+        ],
+        'SRAI2' => [
+          '<that> * <topic> * <pos> 150'
+        ],
+        'TESTSIMPLECONDITION' => [
+          '<that> * <topic> * <pos> 75'
+        ],
+        'CONNECT' => [
+          '<that> * <topic> * <pos> 57'
+        ],
+        'WEBDONE' => [
+          '<that> * <topic> * <pos> 177'
+        ],
+        'TESTGET' => [
+          '<that> * <topic> * <pos> 69'
+        ],
+        'TESTCONDITIONLISTNAMEMATCH' => [
+          '<that> * <topic> * <pos> 84'
+        ],
+        'TEST34' => [
+          '<that> * <topic> TOPICSTAR * TOPIC <pos> 126'
+        ],
+        'SRAI3' => [
+          '<that> * <topic> * <pos> 149'
+        ],
+        'SRAI20' => [
+          '<that> * <topic> * <pos> 132'
+        ],
+        'BLINDSETMATCH' => [
+          '<that> * <topic> * <pos> 77'
+        ],
+        'TESTARRAY3MULTISENTENCETHAT' => [
+          '<that> * <topic> * <pos> 94'
+        ],
+        'TESTUNDERSCORE' => [
+          '_ AND _ AND _ AND _ <that> * <topic> * <pos> 87'
+        ],
+        'TESTCONDITIONLISTNAME' => [
+          '<that> * <topic> * <pos> 83'
+        ],
+        'TESTTHAT' => [
+          '<that> * <topic> * <pos> 92'
+        ],
+        'SPILL' => [
+          'GOSSIP <that> * <topic> * <pos> 25'
+        ],
+        'TESTIDSIZEDATE' => [
+          '<that> * <topic> * <pos> 113'
+        ],
+        'TESTINPUT1' => [
+          '<that> * <topic> * <pos> 118'
+        ]
+      },
+      'templates' => [
+        'ZERO TEMPLATE',
+        '
+Today is <javascript>
+
+     var t = new Date();
+     var m = t.getMonth();
+     var d = t.getDate();
+     var dow = t.getDay();
+     var y = t.getFullYear();
+     switch (dow) {
+     case 0:
+          dow = "Sunday";
+          break;
+     case 1:
+          dow = "Monday";
+          break;
+     case 2:
+          dow = "Tuesday";
+          break;
+     case 3:
+          dow = "Wednesday";
+          break;
+     case 4:
+          dow = "Thursday";
+          break;
+     case 5:
+          dow = "Friday";
+          break;
+     case 6:
+          dow = "Saturday";
+          break;
+     }
+switch (m) {
+case 0:
+     m = "January";
+     break;
+case 1:
+     m = "February";
+     break;
+case 2:
+     m = "March";
+     break;
+case 3:
+     m = "April";
+     break;
+case 4:
+     m = "May";
+     break;
+case 5:
+     m = "June";
+     break;
+case 6:
+     m = "July";
+     break;
+case 7:
+     m = "August";
+     break;
+case 8:
+     m = "September";
+     break;
+case 9:
+     m = "October";
+     break;
+case 10:
+     m = "November";
+     break;
+case 11:
+     m = "December";
+     break;
+}
+
+dow + ", " + m + " " + d + ", " + y;
+
+
+</javascript>
+',
+        '
+<srai>WHAT IS THE DATE</srai>
+',
+        '
+The time is <javascript>
+
+ var now = new java.util.Date()
+ var hour = now.getHours()
+ var minute = now.getMinutes()
+ now = null
+ var ampm = ""
+
+ // validate hour values and set value of ampm
+ if (hour >= 12) {
+  hour -= 12
+  ampm = "PM"
+ } else
+ampm = "AM"
+hour = (hour == 0) ? 12 : hour
+
+// add zero digit to a one digit minute
+if (minute < 10)
+ minute = "0" + minute // do not parse this number!
+hour + ":" + minute + " " + ampm;
+
+</javascript>
+',
+        '
+<random>
+<li>The answer is <javascript><star index="1"></star></javascript>.</li>
+<li><javascript><star index="1"></star></javascript> I think.</li>
+<li>I think it\'s <javascript><star index="1"></star></javascript></li>
+<li>Let me check.  It\'s <javascript><star index="1"></star></javascript></li>
+</random>
+',
+        '
+<javascript><star index="1"></star></javascript>
+',
+        '
+Your favorite color is <get name="favoritecolor"></get> and <get name="favoritecolor"></get>.
+',
+        '
+Thanks for telling me. <set name="favoriteperson">Michele Censullo</set>
+',
+        '
+
+Sending back some Javascript to browser.
+
+<html:script language="javascript">
+setTimeout ( "document.location=\\"mailto:jonbaer@digitalanywhere.com\\"", 1000 );
+</html:script>
+<html:noscript>
+Please click <html:a href="mailto:jonbaer@digitalanywhere.com">here</html:a> or switch Javascript on.
+</html:noscript>
+',
+        '
+The inactivity count is now <get name="inactivitycount"></get>.
+',
+        '
+OK. <think><set name="inactivitycount"><perl>inc ( \'<get name="inactivitycount"></get>\' )</perl></set></think>
+',
+        '
+OK. <think><set name="inactivitycount"><perl>dec ( \'<get name="inactivitycount"></get>\' )</perl></set></think>
+',
+        '
+
+<condition name="inactivitycount">
+	<li value="1">The inactivity is at one.</li>
+	<li value="2">The inactivity is at two.</li>
+	<li><srai>What is the inactivity count?</srai></li>
+</condition>
+',
+        '
+OK. <think><javascript>setValue(\'<id></id>\',\'favoritefood\', \'<star index="1"></star>\')</javascript></think>
+',
+        '
+Your favorite food is <javascript>getValue(\'<id></id>\',\'favoritefood\')</javascript>.
+',
+        '
+<javascript>printPage()</javascript>
+',
+        '
+What is the name of the person?
+',
+        '
+<think><set name="person"><star index="1"></star></set></think>What is the address of the person?
+',
+        '
+<think><set name="address"><star index="1"></star></set></think>Cool, everything was entered.
+',
+        '
+The new person is <get name="person"></get>
+',
+        '
+The new person address is <get name="address"></get>
+',
+        '
+
+<condition name="somepredicatethatdoesnotexist">
+<li value="*">It does exist</li>
+<li>It does NOT exist</li>
+</condition>
+',
+        '
+<star index="1"></star> was added to your kids list.
+
+<think>
+<condition name="kids">
+<li value="*"><set name="kids"><get name="kids"></get>, <star index="1"></star></set></li>
+<li><set name="kids"><star index="1"></star></set></li>
+</condition>
+</think>
+',
+        '
+Your kids are <get name="kids"></get>.
+',
+        '
+<gossip><get name="name"></get> said I was pretty cool.</gossip>Thanks.
+',
+        '
+<get name="gossip"></get>
+',
+        '
+<javascript>getStockQuote(\'orcl\')</javascript>
+',
+        '
+<javascript>getStockQuote(\'msft\')</javascript>
+',
+        '
+<javascript>getStockQuote(\'nuan\')</javascript>
+',
+        '
+<javascript>getStockQuote(\'<star index="1"></star>\')</javascript>
+',
+        '
+<javascript>getStockChart(\'<star index="1"></star>\')</javascript>
+',
+        '
+An egg is an egg, I think.
+',
+        '
+<learn>Egg.aiml</learn>
+',
+        '
+Here is where we do a display of some kind.
+
+
+<html:script language="javascript">
+newWindow = window.open ( "http://www.slashdot.com", "target1" );
+setTimeout ( "newWindow.focus()", 1000 );
+</html:script>
+<html:noscript>Click <html:a href="http://www.slashdot.com" target="target1">here</html:a>.</html:noscript>
+Can you see it?
+',
+        '
+
+
+<html:script language="javascript">
+setTimeout ( "location.href = \\"/talk?user_id=<id></id>&input=LEARN+SOMETHING\\"", 5000 );
+document.writeln ( "The timer has been started.<html:br/>Please wait 5 seconds or type \'Kill Timer\'" )
+</html:script>
+<html:noscript>
+Can\'t start timer. Please switch Javascript on.
+</html:noscript>
+',
+        '
+
+<html:script language="javascript">
+document.writeln ( "The timer has been killed." ); // because of new page loaded...
+</html:script>
+<html:noscript>
+Can\'t kill timer. Please switch Javascript on.
+</html:noscript>
+',
+        '
+<learn>Something.aiml</learn>
+',
+        '
+
+<html:script language="javascript">
+newWindow = window.open (
+	"http://www.alicebot.net",
+	"sized",
+	"scrollbars=no,toolbar=no,resizable=no,menubar=no,location=no,width=400,height=400"
+);
+setTimeout ( "newWindow.focus()", 1000 );
+</html:script>
+<html:noscript>Click <html:a href="http://www.alicebot.net" target="sized">here</html:a>.</html:noscript>
+OK.
+',
+        'You said yes',
+        '
+Test case PERL #01a.
+<html:br/>
+The result of 3 + 5 is <perl>calcAdd ( 3, 5 );</perl>.
+<html:br/>
+Test passed if result == 8 (constants).
+',
+        '
+Test case PERL #01b.
+<html:br/>
+The result of 3.3 + 5.1 is <perl>calcAdd ( 3.3, 5.1 );</perl>.
+<html:br/>
+Test passed if result == 8.4 (constants).
+',
+        '
+Test case PERL #02a.
+<html:br/>
+Internal: <star index="1"></star> PLUS <star index="2"></star>
+<html:br/>
+Result: <perl>toNumber ( \'<star index="1"></star>\' )</perl> + <perl>toNumber ( \'<star index="2"></star>\' )</perl> = <perl>calcAdd ( \'<star index="1"></star>\', \'<star index="2"></star>\' );</perl>
+<html:br/>
+Test passed if result != NaN and equation is correct (from stars).
+',
+        '
+Test case PERL #02b.
+<html:br/>
+Internal: <star index="1"></star> MINUS <star index="2"></star>
+<html:br/>
+Result: <perl>toNumber ( \'<star index="1"></star>\' )</perl> - <perl>toNumber ( \'<star index="2"></star>\' )</perl> = <perl>calcSubtract ( \'<star index="1"></star>\', \'<star index="2"></star>\' );</perl>
+<html:br/>
+Test passed if result != NaN and equation is correct (from stars).
+',
+        '
+Test case PERL #02c.
+<html:br/>
+Internal: <star index="1"></star> TIMES <star index="2"></star>
+<html:br/>
+Result: <perl>toNumber ( \'<star index="1"></star>\' )</perl> * <perl>toNumber ( \'<star index="2"></star>\' )</perl> = <perl>calcTimes ( \'<star index="1"></star>\', \'<star index="2"></star>\' );</perl>
+<html:br/>
+Test passed if result != NaN and equation is correct (from stars).
+',
+        '
+
+<srai><star index="1"></star> divide <star index="2"></star></srai>
+',
+        '
+Test case PERL #02d.
+<html:br/>
+Internal: <star index="1"></star> DIVIDE <star index="2"></star>
+<html:br/>
+Result: <perl>toNumber ( \'<star index="1"></star>\' )</perl> / <perl>toNumber ( \'<star index="2"></star>\' )</perl> = <perl>calcDivide ( \'<star index="1"></star>\', \'<star index="2"></star>\' );</perl>
+<html:br/>
+Test passed if result != NaN and equation is correct (from stars).
+',
+        '
+Test case PERL #02e.
+<html:br/>
+Internal: <star index="1"></star> EQUALS <star index="2"></star>
+<html:br/>
+Result: <perl>toNumber ( \'<star index="1"></star>\' )</perl> == <perl>toNumber ( \'<star index="2"></star>\' )</perl> = <perl>isEqual ( \'<star index="1"></star>\', \'<star index="2"></star>\' );</perl>
+<html:br/>
+Test passed if result != NaN and equation is correct (from stars).
+',
+        '
+Test case PERL #03.
+<think><set name="testperl"><perl>calcAdd ( \'<star index="1"></star>\', \'<star index="2"></star>\' );</perl></set></think>
+<html:br/>
+Internal: <star index="1"></star> PLUS <star index="2"></star>
+<html:br/>
+Result: <perl>toNumber ( \'<star index="1"></star>\' )</perl> + <perl>toNumber ( \'<star index="2"></star>\' )</perl> = <get name="testperl"></get>
+<html:br/>
+Test passed if result != NaN and equation is correct (from stars with think).
+<think><set name="testperl"></set></think>
+',
+        '
+Test case PERL #04a.
+<html:br/>
+The result of 3 + five is <perl>calcAdd ( 3, \'five\' );</perl>.
+<html:br/>
+Test passed if result == NaN (constants).
+',
+        '
+Test case PERL #04b.
+<html:br/>
+The result of 3 / 0 is <perl>calcDivide ( 3, 0 );</perl>.
+<html:br/>
+Test passed if result = Infinity (constants).
+',
+        '
+Test case PERL #05.
+<html:br/>
+
+<think>
+	<set name="test1"><perl>isNumber		( toNumber ( \'<star index="1"></star> <star index="2"></star> <star index="3"></star>\' ) );</perl></set>
+	<set name="test2"><perl>isOperator	( \'<star index="4"></star>\' );</perl></set>
+	<set name="test3"><perl>isNumber		( toNumber ( \'<star index="5"></star> <star index="6"></star> <star index="7"></star>\' ) );</perl></set>
+</think>
+The stars:
+<html:br/>
+1. \'<perl>toNumber ( \'<star index="1"></star> <star index="2"></star> <star index="3"></star>\' )</perl>\' is
+<condition name="test1">
+	<li value="0">NaN.</li>
+	<li value="1">a Number.</li>
+	<li>Test failed.</li>
+</condition>
+<html:br/>
+2. \'<perl>toOperator ( \'<star index="4"></star>\' )</perl>\' is
+<condition name="test2">
+	<li value="0">an INVALID Operator.</li>
+	<li value="1">a valid Operator.</li>
+	<li>Test failed.</li>
+</condition>
+<html:br/>
+3. \'<perl>toNumber ( \'<star index="5"></star> <star index="6"></star> <star index="7"></star>\' )</perl>\' is
+<condition name="test3">
+	<li value="0">NaN.</li>
+	<li value="1">a Number.</li>
+	<li>Test failed.</li>
+</condition>
+<think>
+	<set name="test1"></set>
+	<set name="test2"></set>
+	<set name="test3"></set>
+</think>
+<html:br/>
+Internal: <star index="1"></star> <star index="2"></star> <star index="3"></star> <star index="4"></star> <star index="5"></star> <star index="6"></star> <star index="7"></star>
+<html:br/>
+Result: <perl>toNumber ( \'<star index="1"></star> <star index="2"></star> <star index="3"></star>\' )</perl> <perl>toOperator ( \'<star index="4"></star>\' )</perl> <perl>toNumber ( \'<star index="5"></star> <star index="6"></star> <star index="7"></star>\' )</perl> = <perl>calc ( \'<star index="1"></star> <star index="2"></star> <star index="3"></star>\', \'<star index="4"></star>\', \'<star index="5"></star> <star index="6"></star> <star index="7"></star>\' );</perl>
+<html:br/>
+Test passed if equation is correct OR
+<html:br/>
+Test passed if result == \'Don\'t know how to do \'<star index="1"></star> <star index="2"></star> <star index="3"></star> <star index="4"></star> <star index="5"></star> <star index="6"></star> <star index="7"></star>\' OR
+<html:br/>
+Test passed if result == NaN (from stars).
+',
+        '
+
+<think>
+
+	<set name="testa"><perl>isOperator	( \'<star index="2"></star>\' );</perl></set>
+	<set name="testb"><perl>isOperator	( \'<star index="4"></star>\' );</perl></set>
+</think>
+<condition name="testa">
+	<li value="1">
+		testA<html:br/>
+		<srai>TESTPERLFREE <star index="1"></star> point 0 <star index="2"></star> <star index="3"></star> <star index="4"></star> <star index="5"></star></srai>
+	</li>
+	<li>
+		<condition name="testb">
+			<li value="1">
+				testB<html:br/>
+				<srai>TESTPERLFREE <star index="1"></star> <star index="2"></star> <star index="3"></star> <star index="4"></star> <star index="5"></star> point 0</srai>
+			</li>
+			<li>Test case PERL #05.<html:br/>Test failed.</li>
+		</condition>
+	</li>
+</condition>
+<think>
+	<set name="testa"></set>
+	<set name="testb"></set>
+</think>
+',
+        '
+
+<srai>TESTPERLFREE <star index="1"></star> point 0 <star index="2"></star> <star index="3"></star> point 0</srai>
+',
+        'Test matched 24 star category.',
+        'Test matched 1 star category.',
+        'Sorry, I thought a long time about \'<input index="1,1"></input>\', but couldn\'t find an answer.',
+        'Sorry, \'<input index="2,1"></input>\' pushed me in a doom loop.',
+        '
+		Hi, pleased to meet you
+		<think>
+			<set name="hasname"><perl>hasValueSet ( \'name\', \'<get name="name"></get>\', \'<bot name="id"></bot>\' )</perl></set>
+			<set name="hasit"><perl>hasValueSet ( \'it\', \'<get name="it"></get>\', \'<bot name="id"></bot>\' )</perl></set>
+		</think>
+		<condition name="hasname">
+			<li value="1">
+				again, <get name="name"></get>.
+				<condition name="hasit">
+					<li value="1">We were talking about <get name="it"></get>.</li>
+					<li><srai><star index="1"></star></srai></li>
+				</condition>
+			</li>
+			<li>. My name is <bot name="name"></bot>. <srai><star index="1"></star></srai></li>
+		</condition>
+		<think>
+			<set name="hasname"></set>
+			<set name="hasit"></set>
+		</think>
+	',
+        '<srai>testcaseinfiniteloop</srai>',
+        '<srai>testcaseinfiniteloop3</srai>',
+        '<srai>testcaseinfiniteloop2</srai>',
+        'Test not implemented yet.',
+        'I am
+<javascript>
+
+var now = new java.util.Date()
+var birth = new java.util.Date(bot("birthday"))
+var difference = now.getTime() - birth.getTime()
+var daysDifference = Math.floor(difference/1000/60/60/24)
+difference -= daysDifference*1000*60*60*24
+var hoursDifference = Math.floor(difference/1000/60/60)
+difference -= hoursDifference*1000*60*60
+var minutesDifference = Math.floor(difference/1000/60)
+difference -= minhutesDifference*1000*60
+var secondsDifference = Math.floor(difference/1000)
+daysDifference + " days, " + hoursDifference + " hours, " +
+minutesDifference + " minutes and " + secondsDifference + " seconds old."
+
+</javascript>
+',
+        '
+<javascript>
+
+     var word = \'<star/>\'
+
+     if (word.indexof(" ") > 0) word = word.substr(0, word.indexOf(" "));
+
+     var _server = "dict.org";
+     var _port = 2628;
+     var _socket = java.net.Socket;
+     var _in = java.io.BufferedReader;
+     var _out = java.io.PrintWriter;
+     var _buffer = java.lang.StringBuffer;
+     var _inReader = java.io.InputStreamReader;
+     var _userInput = java.lang.String;
+     var _buffer = java.lang.StringBuffer;
+
+     _in = null;
+     _out = null;
+     _socket = null;
+
+     _socket = new java.net.Socket(_server,_port);
+     _socket.setKeepAlive(true);
+     _socket.setSoTimeout(5000);
+     _out = new java.io.PrintWriter(_socket.getOutputStream(), true);
+     _inReader = new java.io.InputStreamReader(_socket.getInputStream());
+     _in = new java.io.BufferedReader(_inReader);
+
+     _userInput = new java.lang.String();
+     _buffer = new java.lang.StringBuffer();
+
+     _out.println("define wn " + word + "\\n\\n");
+     while ((_userInput = _in.readLine()) != null) {
+          if (_userInput.startsWith("220")) continue;
+          if (_userInput.startsWith("151")) continue;
+          if (_userInput.startsWith("150")) continue;
+          if (_userInput.startsWith(".")) break;
+          _buffer.append(_userInput + "<br />");
+     }
+     _out.close();
+     _in.close();
+     _socket.close();
+
+     _buffer.toString();
+
+</javascript>
+',
+        '
+<srai>WHAT DOES <star index="1"></star> MEAN</srai>
+',
+        '
+<javascript>
+
+     var sql = \'<star/>\'
+
+     sql = "select " + sql;
+
+     var _driver = "org.alicebot.server.sql.jdbcDriver";
+     var _url = "jdbc:alicebot:./database/DATABASE";
+     var _user = "alicebot";
+     var _pass = "";
+     var _connection = java.sql.Connection;
+     var _statement = java.sql.Statement;
+     var _result_set = java.sql.ResultSet;
+     var _buffer = java.lang.StringBuffer;
+
+     java.lang.Class.forName(_driver);
+     _buffer = new java.lang.StringBuffer();
+     _connection = java.sql.DriverManager.getConnection(_url, _user, _pass);
+     _statement = _connection.createStatement();
+     _result_set = _statement.executeQuery(sql);
+
+     while (_result_set.next()) {
+          _buffer.append(java.net.URLDecoder.decode(_result_set.getString(1)) + " ");
+     }
+
+     _result_set.close();
+     _statement.close();
+     _connection.close();
+
+     _buffer.toString();
+
+</javascript>
+',
+        'Test case #01.<html:br/>
+Test passed.
+',
+        'Test case #02.<html:br/>
+<set name="test">Test passed.</set>
+',
+        'Test case #03.<html:br/>
+<think><set name="test">Test failed.</set></think>
+Test passed.
+',
+        'Test case #04.<html:br/>
+<think><set name="test">Test passed</set></think>
+<get name="test"></get> 1.<html:br/>
+ 2.
+',
+        'Test case #04a.<html:br/>
+<think><set name="test">Test failed</set></think>
+<think></think>
+<get name="test"></get>.
+',
+        'Test case #05.<html:br/>
+<think><set name="test">Test passed.</set></think>
+<get name="test"></get>
+<think><set name="test">Test failed.</set></think>
+',
+        'Test case #06.<html:br/>
+<think><set name="topic">Test passed topic</set></think>
+ 1.<html:br/>
+<get name="topic"></get> 2.
+',
+        '
+Test case #06a.<html:br/>
+Test with THAT passed.
+',
+        '
+Test case #06b.<html:br/>
+Test without THAT passed.
+<think><set name="topic"></set></think>
+',
+        'Test case #07.<html:br/>
+<think><set name="test">match</set></think>
+<condition value="match" name="test">Test passed.</condition>
+<think><set name="test"></set></think>
+',
+        'Test case #07a.<html:br/>
+<srai>blindsetmatch</srai>
+<condition value="match" name="test">Test passed.</condition>
+<think><set name="test"></set></think>
+',
+        '
+<think><set name="test">match</set></think>
+',
+        '
+<think><set name="test">nomatch</set></think>
+',
+        'Test case #07b.
+<think><set name="test">match this</set></think>
+<condition value="match *" name="test">Test passed.</condition>
+<think><set name="test"></set></think>
+',
+        'Test case #08.<html:br/>
+<think><set name="test">match</set></think>
+<condition name="test">
+<li value="nomatch">Test failed 1.</li>
+<li value="match">Test passed.</li>
+<li value="nomatch">Test failed 2.</li>
+<li>Test failed 3.</li>
+</condition>
+<think><set name="test"></set></think>
+',
+        'Test case #08a.<html:br/>
+<think><set name="test">match this</set></think>
+<condition name="test">
+<li value="match">Test failed 1.</li>
+<li value="match *">Test passed.</li>
+<li>Test failed 3.</li>
+</condition>
+<think><set name="test"></set></think>
+',
+        'Test case #09.<html:br/>
+<think><set name="test">match</set></think>
+<condition name="test">
+<li value="nomatch">Test failed 1.</li>
+<li value="nomatch">Test failed 2.</li>
+<li value="nomatch">Test failed 3.</li>
+<li>Test passed.</li>
+</condition>
+<think><set name="test"></set></think>
+',
+        'Test case #10.<html:br/>
+<think><set name="test">match</set></think>
+<condition>
+<li value="nomatch" name="test">Test failed 1.</li>
+<li value="match" name="test">Test passed.</li>
+<li value="nomatch" name="test">Test failed 2.</li>
+<li>Test failed 3.</li>
+</condition>
+<think><set name="test"></set></think>
+',
+        'Test case #10a.<html:br/>
+<think><set name="test">match this</set></think>
+<condition>
+<li value="match" name="test">Test failed 1.</li>
+<li value="match *" name="test">Test passed.</li>
+<li value="match" name="test">Test failed 2.</li>
+<li>Test failed 3.</li>
+</condition>
+<think><set name="test"></set></think>
+',
+        'Test case #11.<html:br/>
+<star index="1"></star> 1.<html:br/>
+<star index="1"></star> 2.
+',
+        'Test case #11a.<html:br/>
+star index 1: <star index="1"></star>.<html:br/>
+star index 2: <star index="2"></star>.<html:br/>
+star index 3: <star index="3"></star>.<html:br/>
+star index 4: <star index="4"></star>.<html:br/>
+',
+        'Test case #11b.<html:br/>
+star index 1: <star index="1"></star>.<html:br/>
+star index 2: <star index="2"></star>.<html:br/>
+star index 3: <star index="3"></star>.<html:br/>
+star index 4: <star index="4"></star>.<html:br/>
+',
+        'Test case #12.<html:br/>
+<random>
+<li>Test passed 1.</li>
+<li>Test passed 2.</li>
+<li>Test passed 3.</li>
+<li>Test passed 4.</li>
+<li>Test passed 5.</li>
+</random>
+',
+        'Test case #13.<html:br/>
+Test passed if <uppercase>uppercase</uppercase>.<html:br/>
+Test passed if <lowercase>lOwErCaSe</lowercase>.<html:br/>
+Test passed if <formal>proper name</formal>.<html:br/>
+Test passed if <sentence>this is a sentence.</sentence>
+',
+        'Test case #14.<html:br/>
+<sentence>test passed if <uppercase>this is upper case</uppercase>, and this is a <formal>proper name</formal>.</sentence>
+',
+        'Test case #15 setup. THAT plus two. THAT plus one. THAT.
+',
+        'Test case #15.<html:br/>
+THAT: Old form: <that index="1,1"></that>.<html:br/>
+New form: <that index="1,1"></that>.<html:br/>
+THAT+1: <that index="1,2"></that>.<html:br/>
+THAT+2: <that index="1,3"></that>.<html:br/>
+',
+        'Test case #16 setup a.<html:br/>
+THAT array4 response three.<html:br/>
+THAT array4 response two.<html:br/>
+THAT array4 response one.
+',
+        'Test case #16 setup b.<html:br/>
+THAT array3 response three.<html:br/>
+THAT array3 response two.<html:br/>
+THAT array3 response one.
+',
+        'Test case #16 setup c.<html:br/>
+THAT array2 response three.<html:br/>
+THAT array2 response two.<html:br/>
+THAT array2 response one.
+',
+        'Test case #16 setup d.<html:br/>
+THAT array1 response three.<html:br/>
+THAT array1 response two.<html:br/>
+THAT array1 response one.
+',
+        'Test case #16.<html:br/>
+Array 1<html:br/>
+THAT:   <that index="1,1"></that><html:br/>
+THAT+1: <that index="1,2"></that><html:br/>
+THAT+2: <that index="1,3"></that><html:br/>
+Array 2<html:br/>
+THAT:   <that index="2,1"></that><html:br/>
+test of justbeforethat tag: <html:br/>
+THAT+1: <that index="2,2"></that><html:br/>
+THAT+2: <that index="2,3"></that><html:br/>
+Array 3<html:br/>
+THAT:   <that index="3,1"></that><html:br/>
+THAT+1: <that index="3,2"></that><html:br/>
+THAT+2: <that index="3,3"></that><html:br/>
+Array 4<html:br/>
+THAT:   <that index="4,1"></that><html:br/>
+THAT+1: <that index="4,2"></that><html:br/>
+THAT+2: <that index="4,3"></that>
+',
+        'Test case #17.
+Name old form: , new form: <bot name="name"></bot>.<html:br/>
+Birthday old form: , new form: <bot name="birthday"></bot>.<html:br/>
+BirthPlace old form: , new form: <bot name="birthplace"></bot>.<html:br/>
+BoyFriend old form: , new form: <bot name="boyfriend"></bot>.<html:br/>
+Favorite Band old form: , new form: <bot name="favoriteband"></bot>.<html:br/>
+Favorite Book old form: , new form: <bot name="favoritebook"></bot>.<html:br/>
+Favorite Color old form: , new form: <bot name="favoritecolor"></bot>.<html:br/>
+Favorite Food old form: , new form: <bot name="favoritefood"></bot>.<html:br/>
+Favorite Song old form: , new form: <bot name="favoritesong"></bot>.<html:br/>
+Favorite Movie old form: , new form: <bot name="favoritemovie"></bot>.<html:br/>
+For Fun old form: , new form: <bot name="forfun"></bot>.<html:br/>
+Friends old form: , new form: <bot name="friends"></bot>.<html:br/>
+
+Gender old form: <gender><star index="1"></star></gender>, new form: <bot name="gender"></bot>.<html:br/>
+GirlFriend old form: , new form: <bot name="girlfriend"></bot>.<html:br/>
+Kind of Music old form: , new form: <bot name="kindmusic"></bot>.<html:br/>
+Location old form: , new form: <bot name="location"></bot>.<html:br/>
+Look Like old form: , new form: <bot name="looklike"></bot>.<html:br/>
+Botmaster old form: , new form: <bot name="master"></bot>.<html:br/>
+Question old form: , new form: <bot name="question"></bot>.<html:br/>
+Sign old form: , new form: <bot name="sign"></bot>.<html:br/>
+Talk About old form: , new form: <bot name="talkabout"></bot>.<html:br/>
+Wear old form: , new form: <bot name="wear"></bot>.<html:br/>
+',
+        'Test case #18.<html:br/>
+<think><set name="test1"></set></think>
+<think><set name="test">testvalue</set></think>
+<condition>
+<li value="nomatch" name="test"><think><set name="test1">Test failed</set></think><get name="test1"></get>.</li>
+<li value="testvalue" name="test"><think><set name="test1">Test passed</set></think><get name="test1"></get>.</li>
+<li value="nomatch" name="test"><think><set name="test1">Test failed</set></think><get name="test1"></get>.</li>
+<li>Test failed.</li>
+</condition>
+<think><set name="test1"></set></think>
+<think><set name="test"></set></think>
+',
+        'Test case #20a.<html:br/>
+<think><set name="test">test</set></think>
+<think><set name="test1">test1</set></think>
+<condition>
+<li value="test" name="test">
+<condition>
+<li value="nomatch" name="test1">Test failed.</li>
+<li>Test passed.</li>
+</condition></li>
+<li>Test failed.</li>
+</condition>
+<think><set name="test1"></set></think>
+<think><set name="test"></set></think>
+',
+        'Test case #20b.<html:br/>
+<think><set name="test">test</set></think>
+<think><set name="test1">test1</set></think>
+<condition>
+<li value="test" name="test">
+<condition>
+<li value="test1" name="test1">Test passed.</li>
+<li>Test failed.</li>
+</condition></li>
+<li>Test failed.</li>
+</condition>
+<think><set name="test1"></set></think>
+<think><set name="test"></set></think>
+',
+        'Test case #20c.<html:br/>
+<think><set name="test">test</set></think>
+<think><set name="test1">test1</set></think>
+<condition>
+<li value="nomatch" name="test">
+<condition>
+<li value="nomatch" name="test1">Test failed.</li>
+<li>Test failed.</li>
+</condition></li>
+<li>Test passed.</li>
+</condition>
+<think><set name="test1"></set></think>
+<think><set name="test"></set></think>
+',
+        'Test case #21.<html:br/>
+<think>
+<set name="test">Test failed</set>
+<set name="test1">pass</set>
+</think>
+<set name="testcase">
+<condition name="test1">
+<li value="nomatch">Test failed 1.</li>
+<li value="pass">Test passed.</li>
+<li value="nomatch">Test failed 2.</li>
+<li>Test failed 3</li>
+</condition>
+</set>
+<think><set name="test1"></set></think>
+<think><set name="test"></set></think>
+',
+        'Test case #22.<html:br/>
+Test of "getversion": <html:br/>
+Test of "version": <version></version>
+',
+        'Test case #23.<html:br/>
+<srai>SRAISUCCEEDED</srai>
+',
+        '
+Test passed.
+',
+        'Test case #23a.<html:br/>
+<srai><star index="1"></star></srai>
+',
+        'Test case #24.<html:br/>
+<srai>SRAINESTED</srai>
+',
+        '
+<srai>SRAISUCCEEDED</srai>
+',
+        'Test case #25.<html:br/>
+Test passed, IF NO OTHER MESSAGE.
+<think><srai>TSRAI</srai></think>
+',
+        '
+Test failed.
+',
+        'Test case #26.<html:br/>
+<think><set name="test"><star index="1"></star></set></think>
+<get name="test"></get>.
+',
+        'Test case #27.<html:br/>
+Result of Test ID = <id></id><html:br/>
+OLD TAG: Result of Test GET_IP = <html:br/>
+Result of Test SIZE = <size></size><html:br/>
+OLD TAG: Result of Test GETSIZE = <html:br/>
+Result of Test DATE = <date></date>
+',
+        'Test case #28.<html:br/>
+<think><gossip>This line should appear in the gossip log file <date></date>.</gossip></think>
+Test complete. Check the gossip log.
+',
+        'Test case #29.<html:br/>
+<think><set name="name">test passed</set></think>
+Old form: <html:br/>
+new form: <get name="name"></get><html:br/>
+<think></think>
+Old form: <html:br/>
+new form: <get name="name"></get><html:br/>
+<think><set name="name">Client</set></think>
+',
+        'Test case #30.<html:br/>
+Test (input) passed if this says testinput3: <input index="1,1"></input>.<html:br/>
+Test (justthat) passed if this says testinput2: .<html:br/>
+Test (beforethat) passed if this says testinput1: .<html:br/>
+Test (input index 1) passed if this says testinput3: <input index="1,1"></input>.<html:br/>
+Test (input index 2) passed if this says testinput2: <input index="2,1"></input>.<html:br/>
+Test (input index 3) passed if this says testinput1: <input index="3,1"></input>.<html:br/>
+Test (input index 4) passed if this says testinput: <input index="4,1"></input>.<html:br/>
+',
+        '
+Test case #30 setup a okay.
+',
+        '
+Test case #30 setup b okay.
+',
+        '
+Test case #30 setup c okay.
+',
+        'Test case #31.<html:br/>
+<star index="1"></star> becomes <gender><star index="1"></star></gender>
+',
+        'Test case #32 setup.<html:br/>
+Check next to see if Test passed.
+',
+        '
+Test case #32.<html:br/>
+THATSTAR: <thatstar index="1"></thatstar><html:br/>
+THATSTAR INDEX="1": <thatstar index="1"></thatstar>
+',
+        'Test case #33 setup.<html:br/>
+See whether thatstar test passed and whether index two test passed and whether index three test passed next.
+',
+        '
+Test case #33.<html:br/>
+THATSTAR: <thatstar index="1"></thatstar><html:br/>
+THATSTAR INDEX="1": <thatstar index="1"></thatstar><html:br/>
+THATSTAR INDEX="2": <thatstar index="2"></thatstar><html:br/>
+THATSTAR INDEX="3": <thatstar index="3"></thatstar>
+',
+        '
+Test case #34 setup okay.
+<think><set name="topic">TOPICSTAR Test passed TOPIC</set></think>
+',
+        'Test case #34.<html:br/>
+TOPICSTAR: <topicstar index="1"></topicstar><html:br/>
+TOPICSTAR INDEX="1": <topicstar index="1"></topicstar>
+<think><set name="topic"></set></think>
+',
+        '
+Test case #35 setup okay.
+<think><set name="topic">MULTITOPICSTAR Test passed 1 TOPIC Test passed 2 TOPIC1 Test passed 3</set></think>
+',
+        'Test case #35.<html:br/>
+TOPICSTAR: <topicstar index="1"></topicstar><html:br/>
+TOPICSTAR INDEX="1": <topicstar index="1"></topicstar><html:br/>
+TOPICSTAR INDEX="2": <topicstar index="2"></topicstar><html:br/>
+TOPICSTAR INDEX="3": <topicstar index="3"></topicstar>
+<think><set name="topic"></set></think>
+',
+        '
+Test case #36 setup okay.
+<think></think>
+',
+        'Test case #36.<html:br/>
+Test passed.
+<think></think>
+',
+        'Test case #37.<html:br/>
+<srai>SRAI20</srai>
+',
+        '
+<srai>SRAI19</srai>
+',
+        '
+<srai>SRAI18</srai>
+',
+        '
+<srai>SRAI17</srai>
+',
+        '
+<srai>SRAI16</srai>
+',
+        '
+<srai>SRAI15</srai>
+',
+        '
+<srai>SRAI14</srai>
+',
+        '
+<srai>SRAI13</srai>
+',
+        '
+<srai>SRAI12</srai>
+',
+        '
+<srai>SRAI11</srai>
+',
+        '
+<srai>SRAI10</srai>
+',
+        '
+<srai>SRAI9</srai>
+',
+        '
+<srai>SRAI8</srai>
+',
+        '
+<srai>SRAI7</srai>
+',
+        '
+<srai>SRAI6</srai>
+',
+        '
+<srai>SRAI5</srai>
+',
+        '
+<srai>SRAI4</srai>
+',
+        '
+<srai>SRAI3</srai>
+',
+        '
+<srai>SRAI2</srai>
+',
+        '
+<srai>SRAI1</srai>
+',
+        '
+<srai>SRAISUCCEEDED</srai>
+',
+        '
+Test case #38.<html:br/>
+<star index="1"></star> becomes <person><star index="1"></star></person>
+',
+        '
+Test case #39.<html:br/>
+<star index="1"></star> becomes <person2><star index="1"></star></person2>
+',
+        '
+<srai>SAY <star index="1"></star> IN SPANISH</srai>
+',
+        '
+<srai>SAY <star index="1"></star> IN GERMAN</srai>
+',
+        '
+<srai>SAY <star index="1"></star> IN FRENCH</srai>
+',
+        '
+<srai>SAY <star index="1"></star> IN ITALIAN</srai>
+',
+        '
+<srai>SAY <star index="1"></star> IN JAPANESE</srai>
+',
+        '
+<srai>SAY <star index="1"></star> IN SPANISH</srai>
+',
+        '
+<srai>SAY <star index="1"></star> IN GERMAN</srai>
+',
+        '
+<srai>SAY <star index="1"></star> IN FRENCH</srai>
+',
+        '
+<srai>SAY <star index="1"></star> IN ITALIAN</srai>
+',
+        '
+<srai>SAY <star index="1"></star> IN JAPANESE</srai>
+',
+        '
+<javascript>
+     var word = \'<star index="1"></star>\';
+     var language = \'es\'
+     var _url = java.net.URL;
+     var _connection = java.net.URLConnection;
+     var _in = java.io.BufferedReader;
+     var _inReader = java.io.InputStreamReader;
+     var _line = java.lang.String;
+     var _inputLine = java.lang.String;
+     var _reply = "Sorry, I can\'t speak that language.";
+
+      url = new java.net.URL("http://babel.altavista.com/translate.dyn?enc=utf8&amp;doit=done&amp;BabelFishFrontPage=yes&amp;bblType=urltext&amp;urltext=" + java.net.URLEncoder.encode(word) + "&amp;lp=en_" + language);
+      connection = url.openConnection();
+
+     _inReader = new java.io.InputStreamReader(connection.getInputStream());
+     _in = new java.io.BufferedReader(_inReader);
+     _inputLine = new java.lang.String();
+     _reply = new java.lang.String();
+     var _line = 0;
+     var _match = "&lt;textarea rows=\\"3\\" wrap=virtual cols=\\"56\\" name=\\"q\\"&gt;";
+     while ((_inputLine = _in.readLine()) != null) {
+          _line++;
+          if (_inputLine.trim().startsWith(_match)) {
+               _reply = _inputLine.substring(_match.length + 4);
+               break;
+          }
+     }
+
+     _in.close();
+     _reply;
+
+</javascript>
+',
+        '
+<javascript>
+     var word = \'<star index="1"></star>\';
+     var language = \'de\'
+     var _url = java.net.URL;
+     var _connection = java.net.URLConnection;
+     var _in = java.io.BufferedReader;
+     var _inReader = java.io.InputStreamReader;
+     var _line = java.lang.String;
+     var _inputLine = java.lang.String;
+     var _reply = "Sorry, I can\'t speak that language.";
+
+     url = new java.net.URL("http://babel.altavista.com/translate.dyn?enc=utf8&amp;doit=done&amp;BabelFishFrontPage=yes&amp;bblType=urltext&amp;urltext=" + java.net.URLEncoder.encode(word) + "&amp;lp=en_" +language);
+     connection = url.openConnection();
+
+     _inReader = new java.io.InputStreamReader(connection.getInputStream());
+     _in = new java.io.BufferedReader(_inReader);
+     _inputLine = new java.lang.String();
+     _reply = new java.lang.String();
+     var _line = 0;
+     var _match = "&lt;textarea rows=\\"3\\" wrap=virtual cols=\\"56\\" name=\\"q\\"&gt;";
+     while ((_inputLine = _in.readLine()) != null) {
+          _line++;
+          if (_inputLine.trim().startsWith(_match)) {
+               _reply = _inputLine.substring(_match.length + 4);
+               break;
+          }
+     }
+
+     _in.close();
+     _reply;
+
+</javascript>
+',
+        '
+<javascript>
+     var word = \'<star index="1"></star>\';
+     var language = \'fr\'
+     var _url = java.net.URL;
+     var _connection = java.net.URLConnection;
+     var _in = java.io.BufferedReader;
+     var _inReader = java.io.InputStreamReader;
+     var _line = java.lang.String;
+     var _inputLine = java.lang.String;
+     var _reply = "Sorry, I can\'t speak that language.";
+
+     url = new
+java.net.URL("http://babel.altavista.com/translate.dyn?enc=utf8&amp;doit=done&amp;BabelFishFrontPage
+=yes&amp;bblType=urltext&amp;urltext=" + java.net.URLEncoder.encode(word) + "&amp;lp=en_" +
+language);
+     connection = url.openConnection();
+
+     _inReader = new java.io.InputStreamReader(connection.getInputStream());
+     _in = new java.io.BufferedReader(_inReader);
+     _inputLine = new java.lang.String();
+     _reply = new java.lang.String();
+     var _line = 0;
+     var _match = "&lt;textarea rows=\\"3\\" wrap=virtual cols=\\"56\\" name=\\"q\\"&gt;";
+     while ((_inputLine = _in.readLine()) != null) {
+          _line++;
+          if (_inputLine.trim().startsWith(_match)) {
+               _reply = _inputLine.substring(_match.length + 4);
+               break;
+          }
+     }
+
+     _in.close();
+     _reply;
+
+</javascript>
+',
+        '
+<javascript>
+     var word = \'<star index="1"></star>\';
+     var language = \'it\'
+     var _url = java.net.URL;
+     var _connection = java.net.URLConnection;
+     var _in = java.io.BufferedReader;
+     var _inReader = java.io.InputStreamReader;
+     var _line = java.lang.String;
+     var _inputLine = java.lang.String;
+     var _reply = "Sorry, I can\'t speak that language.";
+
+     url = new
+java.net.URL("http://babel.altavista.com/translate.dyn?enc=utf8&amp;doit=done&amp;BabelFishFrontPage
+=yes&amp;bblType=urltext&amp;urltext=" + java.net.URLEncoder.encode(word) + "&amp;lp=en_" +
+language);
+     connection = url.openConnection();
+
+     _inReader = new java.io.InputStreamReader(connection.getInputStream());
+     _in = new java.io.BufferedReader(_inReader);
+     _inputLine = new java.lang.String();
+     _reply = new java.lang.String();
+     var _line = 0;
+     var _match = "&lt;textarea rows=\\"3\\" wrap=virtual cols=\\"56\\" name=\\"q\\"&gt;";
+     while ((_inputLine = _in.readLine()) != null) {
+          _line++;
+          if (_inputLine.trim().startsWith(_match)) {
+               _reply = _inputLine.substring(_match.length + 4);
+               break;
+          }
+     }
+
+     _in.close();
+     _reply;
+
+</javascript>
+',
+        '
+<javascript>
+     var word = \'<star index="1"></star>\';
+     var language = \'ja\'
+     var _url = java.net.URL;
+     var _connection = java.net.URLConnection;
+     var _in = java.io.BufferedReader;
+     var _inReader = java.io.InputStreamReader;
+     var _line = java.lang.String;
+     var _inputLine = java.lang.String;
+     var _reply = "Sorry, I can\'t speak that language.";
+
+     url = new
+java.net.URL("http://babel.altavista.com/translate.dyn?enc=utf8&amp;doit=done&amp;BabelFishFrontPage
+=yes&amp;bblType=urltext&amp;urltext=" + java.net.URLEncoder.encode(word) + "&amp;lp=en_" +
+language);
+     connection = url.openConnection();
+
+     _inReader = new java.io.InputStreamReader(connection.getInputStream());
+     _in = new java.io.BufferedReader(_inReader);
+     _inputLine = new java.lang.String();
+     _reply = new java.lang.String();
+     var _line = 0;
+     var _match = "&lt;textarea rows=\\"3\\" wrap=virtual cols=\\"56\\" name=\\"q\\"&gt;";
+     while ((_inputLine = _in.readLine()) != null) {
+          _line++;
+          if (_inputLine.trim().startsWith(_match)) {
+               _reply = _inputLine.substring(_match.length + 4);
+               break;
+          }
+     }
+
+     _in.close();
+     _reply;
+
+</javascript>
+',
+        '
+<get name="search"></get>
+',
+        '
+<think><set name="search"><star index="1"></star></set></think>
+Which search engine would you like to use? Yahoo, Yahoo Auctions, or Ebay.
+',
+        '
+<srai>SEARCH YAHOO FOR <get name="search"></get></srai>
+',
+        '
+<srai>SEARCH YAHOO AUCTIONS FOR <get name="search"></get></srai>
+',
+        '
+<srai>SEARCH EBAY FOR <get name="search"></get></srai>
+',
+        '
+ <srai>WEBDONE</srai>
+',
+        '
+
+ <srai>WEBDONE</srai>
+',
+        '
+
+ <srai>WEBDONE</srai>
+',
+        '
+There you go.
+',
+        '
+<srai>SEARCH FOR <star index="1"></star></srai>
+'
+      ]
+    },
+    'bot' => {
+      'id' => 'TestBot-1',
+      'enabled' => 1
+    },
+    'properties' => {
+      'website' => 'http://alicebot.org',
+      'friends' => 'you',
+      'talkabout' => 'anything',
+      'email' => 'test@alicebot.org',
+      'msagent' => 'no',
+      'kindmusic' => 'all',
+      'favoritebook' => 'Don\'t Read Me',
+      'birthplace' => 'Pennsylvania',
+      'favoritemovie' => 'your life story',
+      'id' => 'TestBot-1',
+      'birthday' => '1995',
+      'sign' => 'none',
+      'gender' => 'female',
+      'language' => 'any',
+      'location' => 'here',
+      'master' => 'A.L.I.C.E. AI Foundation',
+      'favoritecolor' => 'transparent',
+      'name' => 'Alice',
+      'favoriteband' => 'rubber',
+      'question' => 'What?',
+      'favoritefood' => 'patterns',
+      'forfun' => 'talk to you',
+      'wear' => 'nothing',
+      'boyfriend' => 'you',
+      'favoritesong' => 'your voice',
+      'looklike' => 'you',
+      'girlfriend' => 'you'
+    }
+  },
+  'TestBot-2' => {
+    'aiml' => {},
+    'bot' => {
+      'id' => 'TestBot-2',
+      'enabled' => ''
+    }
+  }
+};
+
