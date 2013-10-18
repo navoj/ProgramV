@@ -54,7 +54,7 @@ BEGIN
 
 	$VERSION = $VERSION = 0.08;
 
-	$DEBUG = 0	unless $DEBUG;
+	$DEBUG = 0 unless $DEBUG;
 }
 
 use Time::HiRes qw ( gettimeofday tv_interval );
@@ -171,15 +171,14 @@ sub listener
 
 	unless ( defined $self->{listener} )
 	{
-		$self->{listener}	= AIML::Listener->new
-									(
-										input		=> $self->{_input},
-										service	=> $self->{_service_in},
-										encoding	=> $self->{_encoding_in},
-										memory	=> $self->memory(),
-									);
+		$self->{listener} = AIML::Listener->new
+		(
+			input => $self->{_input},
+			service	=> $self->{_service_in},
+			encoding => $self->{_encoding_in},
+			memory	=> $self->memory(),
+		);
 	}
-
 	return $self->{listener};
 }
 
@@ -190,13 +189,12 @@ sub talker
 	unless ( defined $self->{talker} )
 	{
 		$self->{talker}	= AIML::Talker->new
-									(
-										service	=> $self->{_service_out},
-										encoding	=> $self->{_encoding_out},
-										memory	=> $self->memory(),
-									);
+		(
+			service	=> $self->{_service_out},
+			encoding => $self->{_encoding_out},
+			memory	=> $self->memory(),
+		);
 	}
-
 	return $self->{talker};
 }
 
@@ -207,10 +205,10 @@ sub memory
 	unless ( defined $self->{memory} )
 	{
 		$self->{memory}	= AIML::Memory->new
-									(
-										user_id	=> $self->{user_id},
-										bot_id	=> $self->{bot_id},
-									);
+		(
+			user_id	=> $self->{user_id},
+			bot_id	=> $self->{bot_id},
+		);
 	}
 
 	return $self->{memory};
@@ -222,12 +220,12 @@ sub responder
 
 	unless ( defined $self->{responder} )
 	{
-		$self->{responder}	= AIML::Responder->new
-									(
-										listener	=> $self->listener(),
-										talker	=> $self->talker(),
-										memory	=> $self->memory(),
-									);
+		$self->{responder} = AIML::Responder->new
+		(
+			listener => $self->listener(),
+			talker => $self->talker(),
+			memory => $self->memory(),
+		);
 	}
 
 	return $self->{responder};
@@ -257,7 +255,7 @@ sub _clear
 
 	$self->{responder}	= undef,
 	$self->{memory}		= undef,
-	$self->{listener}		= undef;
+	$self->{listener}	= undef;
 	$self->{talker}		= undef;
 }
 
@@ -293,19 +291,19 @@ $encoding_out	L<C<$AIML_ENCODING_LATIN>|AIML::Common/export>
 
 sub getResponse
 {
-	my $self				= shift;
-	my $input			= shift;
-	my $service_in		= shift;
+	my $self = shift;
+	my $input = shift;
+	my $service_in	= shift;
 	my $encoding_in	= shift;
 	my $service_out	= shift;
-	my $encoding_out	= shift;
+	my $encoding_out = shift;
 
-	$input = ''		unless defined $input;
+	$input = '' unless defined $input;
 
-	debug __PACKAGE__, "::getResponse ( '$input' )"		if $DEBUG;
+	debug __PACKAGE__, "::getResponse ( '$input' )"	if $DEBUG;
 
-	$self->{_input}			= $input;
-	$self->{_service_in}		= $service_in		|| $AIML_SERVICE_TEXT;
+	$self->{_input}		= $input;
+	$self->{_service_in}	= $service_in	|| $AIML_SERVICE_TEXT;
 	$self->{_encoding_in}	= $encoding_in		|| $AIML_ENCODING_LATIN;
 	$self->{_service_out}	= $service_out		|| $AIML_SERVICE_TEXT;
 	$self->{_encoding_out}	= $encoding_out	|| $AIML_ENCODING_LATIN;
@@ -322,7 +320,7 @@ sub getResponse
 
 	$self->{response_time} = $t1;
 
-	$self->{user_id}	= $self->memory->{user_id};
+	$self->{user_id} = $self->memory->{user_id};
 
 	return $self->talker();
 }
@@ -360,7 +358,7 @@ sub save
 {
 	my $self = shift;
 
-	$self->{memory}->save()		if defined $self->{memory};
+	$self->{memory}->save()	if defined $self->{memory};
 }
 
 =pod
