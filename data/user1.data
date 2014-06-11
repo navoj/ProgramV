@@ -1,38 +1,24 @@
 $VAR1 = {
-  '_gossip' => [
-    'This line should appear in the gossip log file Tue May  7 23:15:16 2013.'
-  ],
   '_predicates' => {
-    'want' => {
-      'values' => [
-        'to go to bed'
-      ]
-    },
-    'they' => {
-      'default' => 'something',
-      'set-return' => 'name'
-    },
-    'test' => {
-      'values' => [
-        'Test passed'
-      ]
-    },
-    'testa' => {
+    'hasname' => {
       'values' => [
         ''
       ]
     },
+    'it' => {
+      'default' => 'something',
+      'set-return' => 'name',
+      'values' => [
+        '													Siri											'
+      ]
+    },
+    'does' => {
+      'values' => [
+        'Go to the library'
+      ]
+    },
     'input' => {
       'values' => [
-        'i need to go to bed',
-        'I WANT TO go to bed',
-        'have a good night alice',
-        'have a good night',
-        'BYE',
-        'CONNECT',
-        'do you believe in God',
-        'ok thanks',
-        'ok',
         'INTERJECTION',
         'CONNECT',
         'Hello alice',
@@ -65,30 +51,20 @@ $VAR1 = {
         'exit',
         'BYE',
         'goodbye',
-        'BYE'
-      ]
-    },
-    'test1' => {
-      'values' => [
-        ''
-      ]
-    },
-    'personality' => {
-      'values' => [
-        'average'
+        'BYE',
+        'CONNECT',
+        'Hi Alice',
+        'Hi',
+        'How are you',
+        'Do you know Siri',
+        'my phone',
+        'yes',
+        'INTERJECTION',
+        'robots are phone'
       ]
     },
     'that' => {
       'values' => [
-        'What is stopping you?',
-        '			How about that.  			What is stopping you?		',
-        '			Bye bye.		',
-        '			Bye bye.		',
-        'Bye bye.',
-        '		Hi, pleased to meet you								again, 				Jovan			.				We were talking about to go to bed.						',
-        'Of course I believe in God, 				Jovan			.',
-        'That\'s interesting.',
-        '			That\'s interesting.		',
         'That\'s interesting.',
         '		Hi, pleased to meet you								again, 				Jovan			.				We were talking about to go to bed.						',
         'Hi there!',
@@ -121,24 +97,50 @@ $VAR1 = {
         '			TTYL, 				Jovan			.		',
         '			TTYL, Jovan .		',
         '			Bye for now.		',
-        'Bye for now.'
+        'Bye for now.',
+        '		Hi, pleased to meet you								again, 				Jovan			.				We were talking about q.						',
+        'Hello there.',
+        'Hello there.',
+        '			Everything is running smoothly.		',
+        '			I don\'t know if I know it.Where would I have heard about it?		',
+        '			Do robots have			phone?',
+        'Hurrah!',
+        'Hurrah!',
+        'Fortunately we have no emotions.'
       ]
     },
-    'test2' => {
+    'test3' => {
       'values' => [
         ''
       ]
     },
-    'she' => {
-      'default' => 'somebody',
+    'want' => {
       'values' => [
-        'Your wife'
-      ],
+        'to go to bed'
+      ]
+    },
+    'test1' => {
+      'values' => [
+        ''
+      ]
+    },
+    'they' => {
+      'default' => 'something',
       'set-return' => 'name'
     },
-    'does' => {
+    'wife' => {
       'values' => [
-        'Go to the library'
+        '				Valerie			'
+      ]
+    },
+    'personality' => {
+      'values' => [
+        'average'
+      ]
+    },
+    'testa' => {
+      'values' => [
+        ''
       ]
     },
     'testcase' => {
@@ -146,12 +148,24 @@ $VAR1 = {
         'Test passed.'
       ]
     },
-    'topic' => {
+    'she' => {
       'values' => [
-        'q'
+        'Your wife'
+      ],
+      'set-return' => 'name',
+      'default' => 'somebody'
+    },
+    'hasit' => {
+      'values' => [
+        ''
       ]
     },
-    'hasname' => {
+    'testperl' => {
+      'values' => [
+        ''
+      ]
+    },
+    'test2' => {
       'values' => [
         ''
       ]
@@ -161,24 +175,10 @@ $VAR1 = {
         ''
       ]
     },
-    'wife' => {
+    'topic' => {
       'values' => [
-        '				Valerie			'
+        '							Siri						'
       ]
-    },
-    'it' => {
-      'values' => [
-        'q'
-      ],
-      'default' => 'something',
-      'set-return' => 'name'
-    },
-    'he' => {
-      'values' => [
-        '					A.L.I.C.E. AI Foundation				'
-      ],
-      'default' => 'somebody',
-      'set-return' => 'name'
     },
     'name' => {
       'values' => [
@@ -187,21 +187,21 @@ $VAR1 = {
       'default' => 'user',
       'set-return' => 'value'
     },
-    'testperl' => {
+    'he' => {
       'values' => [
-        ''
-      ]
+        '					A.L.I.C.E. AI Foundation				'
+      ],
+      'set-return' => 'name',
+      'default' => 'somebody'
     },
-    'hasit' => {
+    'test' => {
       'values' => [
-        ''
-      ]
-    },
-    'test3' => {
-      'values' => [
-        ''
+        'Test passed'
       ]
     }
-  }
+  },
+  '_gossip' => [
+    'This line should appear in the gossip log file Tue May  7 23:15:16 2013.'
+  ]
 };
 
