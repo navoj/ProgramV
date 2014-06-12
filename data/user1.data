@@ -1,15 +1,18 @@
 $VAR1 = {
   '_predicates' => {
-    'hasname' => {
+    'test3' => {
       'values' => [
         ''
       ]
     },
-    'it' => {
-      'default' => 'something',
-      'set-return' => 'name',
+    'want' => {
       'values' => [
-        '													Siri											'
+        'to go to bed'
+      ]
+    },
+    'personality' => {
+      'values' => [
+        'average'
       ]
     },
     'does' => {
@@ -17,60 +20,22 @@ $VAR1 = {
         'Go to the library'
       ]
     },
-    'input' => {
+    'hasit' => {
       'values' => [
-        'INTERJECTION',
-        'CONNECT',
-        'Hello alice',
-        'Hello',
-        'HOw are you',
-        'can you learn new things',
-        'how do you learn',
-        'oh ok',
-        'oh',
-        'INTERJECTION',
-        'reload cpan',
-        'reload aiml',
-        'bye',
-        'CONNECT',
-        'hh',
-        'i think its about 530',
-        'its about 530',
-        'IT IS about 530',
-        'you are too smart',
-        'YOU ARE smart',
-        'that is not what I meant',
-        'what is your favorite book',
-        'No the latest book i read was Web of Air',
-        'NO',
-        'the latest book i read was Web of Air',
-        'A book in a series by Phillip Reeve',
-        'I do',
-        'about 2 times a week',
-        'q',
-        'exit',
-        'BYE',
-        'goodbye',
-        'BYE',
-        'CONNECT',
-        'Hi Alice',
-        'Hi',
-        'How are you',
-        'Do you know Siri',
-        'my phone',
-        'yes',
-        'INTERJECTION',
-        'robots are phone'
+        ''
       ]
+    },
+    'testa' => {
+      'values' => [
+        ''
+      ]
+    },
+    'they' => {
+      'default' => 'something',
+      'set-return' => 'name'
     },
     'that' => {
       'values' => [
-        'That\'s interesting.',
-        '		Hi, pleased to meet you								again, 				Jovan			.				We were talking about to go to bed.						',
-        'Hi there!',
-        'Hi there!',
-        '			I am fine, thank you.		',
-        'Yes my botmaster teaches me new things all the time.',
         'My botmaster programs replies to questions people ask me.',
         'Woe!',
         '			Woe!		',
@@ -106,78 +71,59 @@ $VAR1 = {
         '			Do robots have			phone?',
         'Hurrah!',
         'Hurrah!',
-        'Fortunately we have no emotions.'
+        'Fortunately we have no emotions.',
+        '		Hi, pleased to meet you								again, 				Jovan			.				We were talking about 													Siri											.						',
+        'Hello there.',
+        '			I am fine, thank you.		',
+        'I\'m glad you liked it 				Jovan			.',
+        ':-) I\'m glad you liked it Jovan .',
+        '			Sayonara.		'
       ]
     },
-    'test3' => {
+    'input' => {
       'values' => [
-        ''
-      ]
-    },
-    'want' => {
-      'values' => [
-        'to go to bed'
-      ]
-    },
-    'test1' => {
-      'values' => [
-        ''
-      ]
-    },
-    'they' => {
-      'default' => 'something',
-      'set-return' => 'name'
-    },
-    'wife' => {
-      'values' => [
-        '				Valerie			'
-      ]
-    },
-    'personality' => {
-      'values' => [
-        'average'
-      ]
-    },
-    'testa' => {
-      'values' => [
-        ''
-      ]
-    },
-    'testcase' => {
-      'values' => [
-        'Test passed.'
-      ]
-    },
-    'she' => {
-      'values' => [
-        'Your wife'
-      ],
-      'set-return' => 'name',
-      'default' => 'somebody'
-    },
-    'hasit' => {
-      'values' => [
-        ''
-      ]
-    },
-    'testperl' => {
-      'values' => [
-        ''
-      ]
-    },
-    'test2' => {
-      'values' => [
-        ''
-      ]
-    },
-    'testb' => {
-      'values' => [
-        ''
-      ]
-    },
-    'topic' => {
-      'values' => [
-        '							Siri						'
+        'how do you learn',
+        'oh ok',
+        'oh',
+        'INTERJECTION',
+        'reload cpan',
+        'reload aiml',
+        'bye',
+        'CONNECT',
+        'hh',
+        'i think its about 530',
+        'its about 530',
+        'IT IS about 530',
+        'you are too smart',
+        'YOU ARE smart',
+        'that is not what I meant',
+        'what is your favorite book',
+        'No the latest book i read was Web of Air',
+        'NO',
+        'the latest book i read was Web of Air',
+        'A book in a series by Phillip Reeve',
+        'I do',
+        'about 2 times a week',
+        'q',
+        'exit',
+        'BYE',
+        'goodbye',
+        'BYE',
+        'CONNECT',
+        'Hi Alice',
+        'Hi',
+        'How are you',
+        'Do you know Siri',
+        'my phone',
+        'yes',
+        'INTERJECTION',
+        'robots are phone',
+        'CONNECT',
+        'hi',
+        'how are you',
+        'great smile',
+        'great',
+        'bye'
       ]
     },
     'name' => {
@@ -187,17 +133,71 @@ $VAR1 = {
       'default' => 'user',
       'set-return' => 'value'
     },
-    'he' => {
+    'testcase' => {
       'values' => [
-        '					A.L.I.C.E. AI Foundation				'
-      ],
-      'set-return' => 'name',
-      'default' => 'somebody'
+        'Test passed.'
+      ]
+    },
+    'wife' => {
+      'values' => [
+        '				Valerie			'
+      ]
+    },
+    'testb' => {
+      'values' => [
+        ''
+      ]
     },
     'test' => {
       'values' => [
         'Test passed'
       ]
+    },
+    'topic' => {
+      'values' => [
+        '							Siri						'
+      ]
+    },
+    'he' => {
+      'values' => [
+        '					A.L.I.C.E. AI Foundation				'
+      ],
+      'default' => 'somebody',
+      'set-return' => 'name'
+    },
+    'testperl' => {
+      'values' => [
+        ''
+      ]
+    },
+    'hasname' => {
+      'values' => [
+        ''
+      ]
+    },
+    'test2' => {
+      'values' => [
+        ''
+      ]
+    },
+    'test1' => {
+      'values' => [
+        ''
+      ]
+    },
+    'she' => {
+      'values' => [
+        'Your wife'
+      ],
+      'default' => 'somebody',
+      'set-return' => 'name'
+    },
+    'it' => {
+      'values' => [
+        '													Siri											'
+      ],
+      'default' => 'something',
+      'set-return' => 'name'
     }
   },
   '_gossip' => [
