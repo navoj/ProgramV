@@ -1,3 +1,4 @@
+
 =head1 NAME
 
 AIML::Bot - AIML bot object class
@@ -48,13 +49,12 @@ package AIML::Bot;
 use strict;
 use warnings;
 
-BEGIN
-{
-	use vars qw ( $DEBUG $VERSION @ISA );
+BEGIN {
+    use vars qw ( $DEBUG $VERSION @ISA );
 
-	$VERSION = $VERSION = 0.08;
+    $VERSION = $VERSION = 0.08;
 
-	$DEBUG = 0 unless $DEBUG;
+    $DEBUG = 0 unless $DEBUG;
 }
 
 use Time::HiRes qw ( gettimeofday tv_interval );
@@ -108,24 +108,22 @@ user is assumed.
 
 =cut
 
-sub new
-{
-	my $proto = shift;
-	my $class = ref($proto) || $proto;
+sub new {
+    my $proto = shift;
+    my $class = ref($proto) || $proto;
 
-	my %args = @_;
+    my %args = @_;
 
-	my $self =
-	{
-		user_id	=> 0,
-		bot_id => '',
+    my $self = {
+        user_id => 0,
+        bot_id  => '',
 
-		%args,
-	};
+        %args,
+    };
 
-	die ( 'bot id undefined' ) unless $self->{bot_id};
+    die('bot id undefined') unless $self->{bot_id};
 
-	bless $self, $class;
+    bless $self, $class;
 }
 
 =pod
@@ -165,70 +163,58 @@ Autocreates C<listener>, C<talker> and C<memory> as well.
 
 =cut
 
-sub listener
-{
-	my $self = shift;
+sub listener {
+    my $self = shift;
 
-	unless ( defined $self->{listener} )
-	{
-		$self->{listener} = AIML::Listener->new
-		(
-			input => $self->{_input},
-			service	=> $self->{_service_in},
-			encoding => $self->{_encoding_in},
-			memory	=> $self->memory(),
-		);
-	}
-	return $self->{listener};
+    unless ( defined $self->{listener} ) {
+        $self->{listener} = AIML::Listener->new(
+            input    => $self->{_input},
+            service  => $self->{_service_in},
+            encoding => $self->{_encoding_in},
+            memory   => $self->memory(),
+        );
+    }
+    return $self->{listener};
 }
 
-sub talker
-{
-	my $self = shift;
+sub talker {
+    my $self = shift;
 
-	unless ( defined $self->{talker} )
-	{
-		$self->{talker}	= AIML::Talker->new
-		(
-			service	=> $self->{_service_out},
-			encoding => $self->{_encoding_out},
-			memory	=> $self->memory(),
-		);
-	}
-	return $self->{talker};
+    unless ( defined $self->{talker} ) {
+        $self->{talker} = AIML::Talker->new(
+            service  => $self->{_service_out},
+            encoding => $self->{_encoding_out},
+            memory   => $self->memory(),
+        );
+    }
+    return $self->{talker};
 }
 
-sub memory
-{
-	my $self = shift;
+sub memory {
+    my $self = shift;
 
-	unless ( defined $self->{memory} )
-	{
-		$self->{memory}	= AIML::Memory->new
-		(
-			user_id	=> $self->{user_id},
-			bot_id	=> $self->{bot_id},
-		);
-	}
+    unless ( defined $self->{memory} ) {
+        $self->{memory} = AIML::Memory->new(
+            user_id => $self->{user_id},
+            bot_id  => $self->{bot_id},
+        );
+    }
 
-	return $self->{memory};
+    return $self->{memory};
 }
 
-sub responder
-{
-	my $self = shift;
+sub responder {
+    my $self = shift;
 
-	unless ( defined $self->{responder} )
-	{
-		$self->{responder} = AIML::Responder->new
-		(
-			listener => $self->listener(),
-			talker => $self->talker(),
-			memory => $self->memory(),
-		);
-	}
+    unless ( defined $self->{responder} ) {
+        $self->{responder} = AIML::Responder->new(
+            listener => $self->listener(),
+            talker   => $self->talker(),
+            memory   => $self->memory(),
+        );
+    }
 
-	return $self->{responder};
+    return $self->{responder};
 }
 
 =pod
@@ -249,14 +235,13 @@ Do not overwrite and call methods marked as I<B<PRIVATE>> from outside.
 
 =cut
 
-sub _clear
-{
-	my $self = shift;
+sub _clear {
+    my $self = shift;
 
-	$self->{responder}	= undef,
-	$self->{memory}		= undef,
-	$self->{listener}	= undef;
-	$self->{talker}		= undef;
+    $self->{responder}  = undef,
+      $self->{memory}   = undef,
+      $self->{listener} = undef;
+    $self->{talker} = undef;
 }
 
 =pod
@@ -265,12 +250,11 @@ sub _clear
 
 =cut
 
-sub _init
-{
-	my $self = shift;
+sub _init {
+    my $self = shift;
 
-	$self->_clear();
-	$self->responder();
+    $self->_clear();
+    $self->responder();
 }
 
 =pod
@@ -289,40 +273,39 @@ $encoding_out	L<C<$AIML_ENCODING_LATIN>|AIML::Common/export>
 
 =cut
 
-sub getResponse
-{
-	my $self = shift;
-	my $input = shift;
-	my $service_in	= shift;
-	my $encoding_in	= shift;
-	my $service_out	= shift;
-	my $encoding_out = shift;
+sub getResponse {
+    my $self         = shift;
+    my $input        = shift;
+    my $service_in   = shift;
+    my $encoding_in  = shift;
+    my $service_out  = shift;
+    my $encoding_out = shift;
 
-	$input = '' unless defined $input;
+    $input = '' unless defined $input;
 
-	debug __PACKAGE__, "::getResponse ( '$input' )"	if $DEBUG;
+    debug __PACKAGE__, "::getResponse ( '$input' )" if $DEBUG;
 
-	$self->{_input}		= $input;
-	$self->{_service_in}	= $service_in	|| $AIML_SERVICE_TEXT;
-	$self->{_encoding_in}	= $encoding_in		|| $AIML_ENCODING_LATIN;
-	$self->{_service_out}	= $service_out		|| $AIML_SERVICE_TEXT;
-	$self->{_encoding_out}	= $encoding_out	|| $AIML_ENCODING_LATIN;
+    $self->{_input}        = $input;
+    $self->{_service_in}   = $service_in || $AIML_SERVICE_TEXT;
+    $self->{_encoding_in}  = $encoding_in || $AIML_ENCODING_LATIN;
+    $self->{_service_out}  = $service_out || $AIML_SERVICE_TEXT;
+    $self->{_encoding_out} = $encoding_out || $AIML_ENCODING_LATIN;
 
-	$self->_init();
+    $self->_init();
 
-	my ( @t0, $t1 );
+    my ( @t0, $t1 );
 
-	@t0 = gettimeofday();
+    @t0 = gettimeofday();
 
-	$self->responder->getResponse();
+    $self->responder->getResponse();
 
-	$t1 = tv_interval ( \@t0 );
+    $t1 = tv_interval( \@t0 );
 
-	$self->{response_time} = $t1;
+    $self->{response_time} = $t1;
 
-	$self->{user_id} = $self->memory->{user_id};
+    $self->{user_id} = $self->memory->{user_id};
 
-	return $self->talker();
+    return $self->talker();
 }
 
 =pod
@@ -335,11 +318,10 @@ Tries to call C<save>, which might be to late here...
 
 =cut
 
-sub DESTROY
-{
-	my $self = shift;
+sub DESTROY {
+    my $self = shift;
 
-	$self->save();
+    $self->save();
 }
 
 =pod
@@ -354,11 +336,10 @@ See L<AIML::Shell> and L<AIML::Handler> for examples.
 
 =cut
 
-sub save
-{
-	my $self = shift;
+sub save {
+    my $self = shift;
 
-	$self->{memory}->save()	if defined $self->{memory};
+    $self->{memory}->save() if defined $self->{memory};
 }
 
 =pod
