@@ -3,7 +3,7 @@
 use 5.005;
 use strict;
 package Readonly;
-$Readonly::VERSION = 0.07;    # Also change in the documentation!
+$Readonly::VERSION = 0.08;    # Also change in the documentation!
 
 # Autocroak (Thanks, MJD)
 # Only load Carp.pm if module is croaking.

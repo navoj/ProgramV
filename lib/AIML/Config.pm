@@ -60,7 +60,7 @@ BEGIN
 #	LIBS
 #
 use EnglishSave;
-use Readonly 0.07;
+use Readonly 0.08;
 use File::Spec;
 
 use AIML::Common 0.08;
